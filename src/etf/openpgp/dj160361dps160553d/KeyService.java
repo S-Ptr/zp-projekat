@@ -3,6 +3,7 @@ package etf.openpgp.dj160361dps160553d;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
+import org.bouncycastle.openpgp.PGPKeyRingGenerator;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
