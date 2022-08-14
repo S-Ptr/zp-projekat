@@ -6,6 +6,8 @@ import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPKeyPair;
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.openpgp.PGPKeyRingGenerator;
+
 
 import java.math.BigInteger;
 import java.security.*;
