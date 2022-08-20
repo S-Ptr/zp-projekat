@@ -13,7 +13,10 @@ import org.bouncycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.bc.BcPGPDigestCalculatorProvider;
 
 import javax.print.attribute.HashAttributeSet;
+import javax.swing.*;
 import java.io.Console;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -71,7 +74,8 @@ public class PrivateKeySet {
                     hashCalculator.get(HashAlgorithmTags.SHA1),
                     null, null,
                     new BcPGPContentSignerBuilder(keyPair.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1),
-                    new BcPBESecretKeyEncryptorBuilder(SymmetricKeyAlgorithmTags.AES_128, hashCalculator.get(HashAlgorithmTags.SHA1)).build(passphrase.toCharArray()));
+                    new BcPBESecretKeyEncryptorBuilder(SymmetricKeyAlgorithmTags.AES_128,
+                            hashCalculator.get(HashAlgorithmTags.SHA1)).build(passphrase.toCharArray()));
             List<PGPSecretKey> keyRing = new ArrayList<>();
             keyRing.add(key);
             this.secretKeys = PGPSecretKeyRingCollection.addSecretKeyRing(this.secretKeys, new PGPSecretKeyRing(keyRing));
@@ -80,40 +84,52 @@ public class PrivateKeySet {
         }
     }
 
-    public void removePrivateKey(long keyID) {
+    public void removePrivateKey(long keyID, String passphrase) throws InvalidPasswordException {
         try {
-            this.secretKeys = PGPSecretKeyRingCollection.removeSecretKeyRing(this.secretKeys, this.secretKeys.getSecretKeyRing(keyID));
+            PGPSecretKeyRing keyRing = secretKeys.getSecretKeyRing(keyID);
+            PGPKeyPair keyPair = keyRing.getSecretKey().extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase.toCharArray()));
+            if(keyPair.getKeyID()==keyID)
+                this.secretKeys = PGPSecretKeyRingCollection.removeSecretKeyRing(this.secretKeys, this.secretKeys.getSecretKeyRing(keyID));
+            else throw new InvalidPasswordException();
         } catch (PGPException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void removePrivateKey(String user){
+    public void removePrivateKey(String user, String passphrase) throws PGPException {
         Iterator<PGPSecretKeyRing> detectedUsers = null;
-        try {
             detectedUsers = this.secretKeys.getKeyRings(user, true);//boolean means whether partial matches are allowed or not
             while(detectedUsers.hasNext()){
+                PGPSecretKeyRing current = detectedUsers.next();
+                current.getSecretKey().extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase.toCharArray()));
                 this.secretKeys = PGPSecretKeyRingCollection.removeSecretKeyRing(this.secretKeys, detectedUsers.next());
             }
-        } catch (PGPException e) {
-            throw new RuntimeException(e);
-        }
 
 
     }
 
-    public PGPKeyPair getKeyPair(String user, String passphrase) {
-        try {
-            Iterator<PGPSecretKeyRing> matchingSecretKeys = this.secretKeys.getKeyRings(user, true);
+    public PGPKeyPair getKeyPair(String user, String passphrase) throws PGPException {
+            Iterator<PGPSecretKeyRing> matchingSecretKeys = this.secretKeys.getKeyRings(user, true);//partial matches allowed
             while(matchingSecretKeys.hasNext()){
                 PGPSecretKeyRing secretKeyRing = matchingSecretKeys.next();
                 PGPSecretKey secretKey = secretKeyRing.getSecretKey();
                 return secretKey.extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase.toCharArray()));
             }
-        } catch (PGPException e) {
-            throw new RuntimeException(e);
-        }
         return null;
     }
 
+    public void exportToFile(String user){
+        JFrame parent = new JFrame();
+        JFileChooser fileChoose = new JFileChooser();
+        fileChoose.setDialogTitle("Export to...");
+        int choice = fileChoose.showSaveDialog(parent);
+        if (choice == JFileChooser.APPROVE_OPTION) {
+            File file = fileChoose.getSelectedFile();
+
+        }
+    }
+
+    public void importFromFile(){
+
+    }
 }
