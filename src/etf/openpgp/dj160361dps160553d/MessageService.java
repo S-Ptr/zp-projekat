@@ -4,5 +4,5 @@ import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 
 public class MessageService {
 
-    RSAKeyPairGenerator rsaKeyPairGenerator;
+
 }
