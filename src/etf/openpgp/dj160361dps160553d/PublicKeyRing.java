@@ -13,6 +13,6 @@ public class PublicKeyRing {
 
 
     public PublicKeyRing(){
-        publicKeyRing = new PGPPublicKeyRing(new LinkedList<PGPPublicKey>());
+
     }
 }

@@ -3,10 +3,13 @@ package etf.openpgp.dj160361dps160553d;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
-import org.bouncycastle.openpgp.PGPKeyRingGenerator;
+import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.operator.jcajce.JcaPGPKeyPair;
+import org.bouncycastle.util.encoders.Base64;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.security.*;
+import java.util.Date;
 
 enum KeyLength{
     RSA1024,
@@ -18,41 +21,68 @@ enum KeyLength{
 public class KeyService {
 
 
-    private RSAKeyPairGenerator keygen1024;
-    private RSAKeyPairGenerator keygen2048;
-    private RSAKeyPairGenerator keygen4096;
+    private KeyPairGenerator keygen1024;
+    private KeyPairGenerator keygen2048;
+    private KeyPairGenerator keygen4096;
+
+    private PGPKeyRingGenerator keyRingGenerator;
 
     SecureRandom secureRandom;
 
     public KeyService() {
-        keygen1024 = new RSAKeyPairGenerator();
-        keygen2048 = new RSAKeyPairGenerator();
-        keygen4096 = new RSAKeyPairGenerator();
-        secureRandom = new SecureRandom("ZPProjekat2022".getBytes());
 
-        keygen1024.init(new RSAKeyGenerationParameters(new BigInteger("65537"), secureRandom,1024,5));
-        keygen2048.init(new RSAKeyGenerationParameters(new BigInteger("65537"),secureRandom,2048,5));
-        keygen4096.init(new RSAKeyGenerationParameters(new BigInteger("65537"),secureRandom,4096,5));
+        KeyPairGenerator kpg;
+        try {
+            keygen1024 = KeyPairGenerator.getInstance("RSA");
+            keygen2048 = KeyPairGenerator.getInstance("RSA");
+            keygen4096 = KeyPairGenerator.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        keygen1024.initialize(1024);
+        keygen2048.initialize(2048);
+        keygen4096.initialize(4096);
+        KeyPair keyPair = keygen2048.generateKeyPair();
+        PublicKey pub = keyPair.getPublic();
+        PrivateKey priv = keyPair.getPrivate();
+        String privateKey = new String(Base64.encode(priv.getEncoded()));
+        String publicKey = new String(Base64.encode(pub.getEncoded()));
+        System.out.println(privateKey);
+        System.out.println(publicKey);
+
+        keyPair = keygen4096.generateKeyPair();
+        pub = keyPair.getPublic();
+        priv = keyPair.getPrivate();
+        privateKey = new String(Base64.encode(priv.getEncoded()));
+        publicKey = new String(Base64.encode(pub.getEncoded()));
+        System.out.println(privateKey);
+        System.out.println(publicKey);
+
 
     }
 
-    public AsymmetricCipherKeyPair generateKeyPair(KeyLength keyLength) throws IllegalArgumentException{
-        AsymmetricCipherKeyPair asymmetricCipherKeyPair;
+    public PGPKeyPair generateKeyPair(KeyLength keyLength) throws IllegalArgumentException, PGPException {
+        PGPKeyPair asymmetricCipherKeyPair;
+
         switch(keyLength) {
             case RSA1024:
-                asymmetricCipherKeyPair = keygen1024.generateKeyPair();
+                asymmetricCipherKeyPair = new JcaPGPKeyPair(PGPPublicKey.RSA_GENERAL, keygen1024.generateKeyPair(), new Date());
                 break;
             case RSA2048:
-                asymmetricCipherKeyPair = keygen2048.generateKeyPair();
+                asymmetricCipherKeyPair = new JcaPGPKeyPair(PGPPublicKey.RSA_GENERAL, keygen2048.generateKeyPair(), new Date());
                 break;
             case RSA4096:
-                asymmetricCipherKeyPair = keygen4096.generateKeyPair();
+                asymmetricCipherKeyPair = new JcaPGPKeyPair(PGPPublicKey.RSA_GENERAL, keygen4096.generateKeyPair(), new Date());
                 break;
             default:
                 throw new IllegalArgumentException("Invalid key length provided. Check the arguments of your method call and try again.");
         }
         return asymmetricCipherKeyPair;
     }
+
+
+
+
 
     
 
