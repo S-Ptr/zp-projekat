@@ -1,18 +1,16 @@
 package etf.openpgp.dj160361dps160553d.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
 
     private String name;
     private String email;
-    private RSAAlgorithm rsaAlgorithm;
+    private KeyLength rsaAlgorithm;
     private String password;
 }

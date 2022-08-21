@@ -1,11 +1,14 @@
 package etf.openpgp.dj160361dps160553d;
 
+import etf.openpgp.dj160361dps160553d.view.GenerateKeyPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class Main {
     public static JFrame mainFrame;
+    public static GenerateKeyPanel generateKeyPanel;
 
     public static void main(String[] args) {
 
@@ -21,7 +24,12 @@ public class Main {
         AbstractAction generateKeyPairAction = new AbstractAction("Generate Key Pair") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.printf("Generate");
+                System.out.print("Generate");
+                generateKeyPanel = new GenerateKeyPanel();
+                mainFrame.add(generateKeyPanel);
+                mainFrame.pack();
+                mainFrame.setLocationRelativeTo(null);
+                mainFrame.setBounds(600, 300, 700, 500);
             }
         };
         JMenuItem generateKeyPairMenuItem = new JMenuItem(generateKeyPairAction);
