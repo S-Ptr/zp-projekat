@@ -1,23 +1,15 @@
 package etf.openpgp.dj160361dps160553d;
 
+import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
 import org.bouncycastle.openpgp.*;
-import org.bouncycastle.openpgp.operator.PBESecretKeyDecryptor;
-import org.bouncycastle.openpgp.operator.PBESecretKeyEncryptor;
-import org.bouncycastle.openpgp.operator.PGPDigestCalculator;
-import org.bouncycastle.openpgp.operator.PGPDigestCalculatorProvider;
-import org.bouncycastle.openpgp.operator.bc.BcPBESecretKeyDecryptorBuilder;
-import org.bouncycastle.openpgp.operator.bc.BcPBESecretKeyEncryptorBuilder;
-import org.bouncycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
-import org.bouncycastle.openpgp.operator.bc.BcPGPDigestCalculatorProvider;
+import org.bouncycastle.openpgp.operator.*;
+import org.bouncycastle.openpgp.operator.bc.*;
 
 import javax.print.attribute.HashAttributeSet;
 import javax.swing.*;
-import java.io.Console;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,44 +20,11 @@ import java.util.logging.Logger;
 public class PrivateKeySet {
 
     private PGPSecretKeyRingCollection secretKeys;
-    private PGPSecretKey key;
     private PGPDigestCalculatorProvider hashCalculator;
 
-    public PrivateKeySet(PGPKeyPair keyPair, String name, String email, String password){
-        try {
-            this.secretKeys= new PGPSecretKeyRingCollection(new ArrayList<PGPSecretKeyRing>());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (PGPException e) {
-            throw new RuntimeException(e);
-        }
-        this.hashCalculator = new BcPGPDigestCalculatorProvider();
-        /*try {
-            PGPSecretKey key = new PGPSecretKey(keyPair.getPrivateKey(), keyPair.getPublicKey(), hashCalculator.get(HashAlgorithmTags.SHA1), true, new BcPBESecretKeyEncryptorBuilder(SymmetricKeyAlgorithmTags.AES_128, hashCalculator.get(HashAlgorithmTags.SHA1)).build(password.toCharArray()));
-        } catch (PGPException e) {
-            throw new RuntimeException(e);
-        }*/
-
-        try {
-            PGPSecretKey key2 = new PGPSecretKey(PGPSignature.POSITIVE_CERTIFICATION, keyPair, name + " <" + email + ">",
-                    hashCalculator.get(HashAlgorithmTags.SHA1),
-                    null, null,
-                    new BcPGPContentSignerBuilder(keyPair.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1),
-                    new BcPBESecretKeyEncryptorBuilder(SymmetricKeyAlgorithmTags.AES_128, hashCalculator.get(HashAlgorithmTags.SHA1)).build(password.toCharArray()));
-            this.key = key2;
-        } catch (PGPException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public PGPPrivateKey retrieveSecretKey(String pass) throws InvalidPasswordException {
-            try {
-                PBESecretKeyDecryptor decryptor = new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(pass.toCharArray());
-                PGPPrivateKey privateKey = key.extractPrivateKey(decryptor);
-                return privateKey;
-            } catch (Throwable t) {
-                throw new InvalidPasswordException();
-            }
+    public PrivateKeySet() throws PGPException, IOException {
+        this.secretKeys = new PGPSecretKeyRingCollection(new ArrayList<PGPSecretKeyRing>());
+        this.hashCalculator =new BcPGPDigestCalculatorProvider();
     }
 
     public void addPrivateKey (PGPKeyPair keyPair, String name, String email, String passphrase){
@@ -104,32 +63,85 @@ public class PrivateKeySet {
                 current.getSecretKey().extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase.toCharArray()));
                 this.secretKeys = PGPSecretKeyRingCollection.removeSecretKeyRing(this.secretKeys, detectedUsers.next());
             }
-
-
     }
 
     public PGPKeyPair getKeyPair(String user, String passphrase) throws PGPException {
             Iterator<PGPSecretKeyRing> matchingSecretKeys = this.secretKeys.getKeyRings(user, true);//partial matches allowed
-            while(matchingSecretKeys.hasNext()){
+            if(matchingSecretKeys.hasNext()){
                 PGPSecretKeyRing secretKeyRing = matchingSecretKeys.next();
                 PGPSecretKey secretKey = secretKeyRing.getSecretKey();
                 return secretKey.extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase.toCharArray()));
+            }else{
+                System.out.println("No such secret key found: "+user);
             }
         return null;
     }
 
-    public void exportToFile(String user){
+    public void exportPairToFile(String user) throws PGPException, IOException {
         JFrame parent = new JFrame();
+        Iterator<PGPSecretKeyRing> matchingSecretKeys = this.secretKeys.getKeyRings(user, true);//partial matches allowed
+        if(!matchingSecretKeys.hasNext()){
+            throw new PGPException("No matching key found");
+        }
+        PGPSecretKeyRing secretKeyRing = matchingSecretKeys.next();
         JFileChooser fileChoose = new JFileChooser();
         fileChoose.setDialogTitle("Export to...");
-        int choice = fileChoose.showSaveDialog(parent);
+        int choice = fileChoose.showDialog(parent, "Export");
         if (choice == JFileChooser.APPROVE_OPTION) {
             File file = fileChoose.getSelectedFile();
-
+                OutputStream secretOut = new FileOutputStream(file.getAbsolutePath() + ".asc");
+                secretOut = new ArmoredOutputStream(secretOut);
+                secretKeyRing.encode(secretOut);
+                secretOut.close();
         }
     }
 
-    public void importFromFile(){
+    public void importKeyPairsFromFile() throws IOException, PGPException {
+        KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
+        JFrame parent = new JFrame();
+        JFileChooser fileChoose = new JFileChooser();
+        fileChoose.setDialogTitle("Import from...");
+        int choice = fileChoose.showDialog(parent, "Import");
+        if(choice == JFileChooser.APPROVE_OPTION) {
+            File file = fileChoose.getSelectedFile();
+            PGPSecretKeyRingCollection fileKeys = new PGPSecretKeyRingCollection(new FileInputStream(file), fingerprintCalc);
+            for(PGPSecretKeyRing keyRing : fileKeys) {
+                this.secretKeys = PGPSecretKeyRingCollection.addSecretKeyRing(this.secretKeys, keyRing);
+            }
+        }
+    }
 
+    public PGPPublicKey getPublicKey(String user) throws PGPException {
+        Iterator<PGPSecretKeyRing> matchingSecretKey = this.secretKeys.getKeyRings(user, true);//partial matches allowed
+        if(matchingSecretKey.hasNext()){
+            return matchingSecretKey.next().getPublicKey();
+        }else {
+            System.out.println("No matching key");
+            return null;
+        }
+    }
+
+    public void exportPublicKey(String user) throws PGPException, IOException {
+        Iterator<PGPSecretKeyRing> matchingSecretKeys = this.secretKeys.getKeyRings(user, true);//partial matches allowed
+        JFrame parent = new JFrame();
+        JFileChooser fileChoose = new JFileChooser();
+        fileChoose.setDialogTitle("Export to...");
+        if (matchingSecretKeys.hasNext()) {
+            PGPSecretKeyRing keyRing = matchingSecretKeys.next();
+            int choice = fileChoose.showDialog(parent, "Export");
+            if (choice == JFileChooser.APPROVE_OPTION) {
+                File file = fileChoose.getSelectedFile();
+                OutputStream secretOut = new FileOutputStream(file.getAbsolutePath() + ".asc");
+                secretOut = new ArmoredOutputStream(secretOut);
+                keyRing.getPublicKey().encode(secretOut);
+                secretOut.close();
+            }
+        }else{
+            System.out.println("No matching secret key");
+        }
+    }
+
+    public PGPSecretKeyRingCollection getSecretKeys() {
+        return this.secretKeys;
     }
 }
