@@ -1,5 +1,6 @@
 package etf.openpgp.dj160361dps160553d;
 
+import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.openpgp.*;
@@ -28,7 +29,7 @@ public class PublicKeySet {
         int choice = fileChoose.showDialog(parent, "Import");
         if(choice == JFileChooser.APPROVE_OPTION) {
             File file = fileChoose.getSelectedFile();
-            PGPPublicKeyRingCollection fileKeys = new PGPPublicKeyRingCollection(new FileInputStream(file), fingerprintCalc);
+            PGPPublicKeyRingCollection fileKeys = new PGPPublicKeyRingCollection(new ArmoredInputStream(new FileInputStream(file)), fingerprintCalc);
             for(PGPPublicKeyRing keyRing : fileKeys) {
                 this.publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(this.publicKeys, keyRing);
             }

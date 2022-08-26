@@ -1,5 +1,6 @@
 package etf.openpgp.dj160361dps160553d;
 
+import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
@@ -24,7 +25,7 @@ public class PrivateKeySet {
 
     public PrivateKeySet() throws PGPException, IOException {
         this.secretKeys = new PGPSecretKeyRingCollection(new ArrayList<PGPSecretKeyRing>());
-        this.hashCalculator =new BcPGPDigestCalculatorProvider();
+        this.hashCalculator = new BcPGPDigestCalculatorProvider();
     }
 
     public void addPrivateKey (PGPKeyPair keyPair, String name, String email, String passphrase){
@@ -77,6 +78,7 @@ public class PrivateKeySet {
         return null;
     }
 
+
     public void exportPairToFile(String user) throws PGPException, IOException {
         JFrame parent = new JFrame();
         Iterator<PGPSecretKeyRing> matchingSecretKeys = this.secretKeys.getKeyRings(user, true);//partial matches allowed
@@ -104,10 +106,18 @@ public class PrivateKeySet {
         int choice = fileChoose.showDialog(parent, "Import");
         if(choice == JFileChooser.APPROVE_OPTION) {
             File file = fileChoose.getSelectedFile();
-            PGPSecretKeyRingCollection fileKeys = new PGPSecretKeyRingCollection(new FileInputStream(file), fingerprintCalc);
+            PGPSecretKeyRingCollection fileKeys = new PGPSecretKeyRingCollection(new ArmoredInputStream(new FileInputStream(file)), fingerprintCalc);
             for(PGPSecretKeyRing keyRing : fileKeys) {
                 this.secretKeys = PGPSecretKeyRingCollection.addSecretKeyRing(this.secretKeys, keyRing);
             }
+        }
+    }
+
+    public void importKeyPairsFromFile(File file) throws IOException, PGPException {
+        KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
+        PGPSecretKeyRingCollection fileKeys = new PGPSecretKeyRingCollection(new ArmoredInputStream(new FileInputStream(file)), fingerprintCalc);
+        for (PGPSecretKeyRing keyRing : fileKeys) {
+            this.secretKeys = PGPSecretKeyRingCollection.addSecretKeyRing(this.secretKeys, keyRing);
         }
     }
 
