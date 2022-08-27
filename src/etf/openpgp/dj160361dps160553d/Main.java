@@ -44,6 +44,31 @@ public class Main {
         JMenuItem deleteKeyPairMenuItem = new JMenuItem(deleteKeyPairAction);
         keyPairMenu.add(deleteKeyPairMenuItem);
 
+        JMenu viewMenu = new JMenu("View");
+        menuBar.add(viewMenu);
+
+        AbstractAction viewPublicKeyRingAction = new AbstractAction("Public Key Ring") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                generateKeyPanel = new GenerateKeyPanel();
+                mainFrame.add(generateKeyPanel);
+                mainFrame.pack();
+                mainFrame.setLocationRelativeTo(null);
+                mainFrame.setBounds(600, 300, 700, 500);
+            }
+        };
+        JMenuItem viewPublicKeyRingMenu = new JMenuItem(viewPublicKeyRingAction);
+        viewMenu.add(viewPublicKeyRingMenu);
+
+        AbstractAction viewSecretKeyRingAction = new AbstractAction("Secret Key Ring") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.printf("Delete");
+            }
+        };
+        JMenuItem viewSecretKeyRingMenu = new JMenuItem(viewSecretKeyRingAction);
+        viewMenu.add(viewSecretKeyRingMenu);
+
         mainFrame.setBounds(600, 300, 700, 500);
         mainFrame.setVisible(true);
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
