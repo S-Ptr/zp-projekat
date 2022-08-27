@@ -21,6 +21,12 @@ public class PublicKeySet {
         this.publicKeys = new PGPPublicKeyRingCollection(new ArrayList<PGPPublicKeyRing>());
     }
 
+    public void addPublicKeyRing(PGPPublicKey publicKey){
+        ArrayList<PGPPublicKey> list = new ArrayList<>();
+        list.add(publicKey);
+        this.publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(this.publicKeys,new PGPPublicKeyRing(list));
+    }
+
     public void importKeysFromFile() throws IOException, PGPException {
         KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
         JFrame parent = new JFrame();
@@ -86,6 +92,10 @@ public class PublicKeySet {
             System.out.println("getPublicKey - No such public key found: "+user);
             return null;
         }
+    }
+
+    public PGPPublicKey getPublicKey(long keyID) throws PGPException {
+        return this.getPublicKey(keyID);
     }
 
     public PGPPublicKeyRingCollection getPublicKeys(){

@@ -45,6 +45,8 @@ public class HelloWorld {
 
             PGPKeyPair pgpKeyPair = privateKeys.getKeyPair("stefan@stefex.com", "nijestefan");
             PGPPublicKey publicKey = privateKeys.getPublicKey("azra@azco.com");
+            //publicKeys.addPublicKeyRing(pgpKeyPair.getPublicKey());
+
 
             JFileChooser fileChoose = new JFileChooser();
             fileChoose.setDialogTitle("PGP moment");
@@ -61,9 +63,11 @@ public class HelloWorld {
                 //msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.NULL,false,true,false); //works
                 //msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.NULL,true,true,false); //i think it works?
                 //msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.NULL,true,false,false);//works
-                privateKeys.addPrivateKey(ks.generateKeyPair(KeyLength.RSA2048), "Stoka", "stoka@matijevic.com", "stoka1234");//vrlo sam smesan
-                //msgService.generatePGPMessage(privateKeys.getKeyPair("stoka@matijevic.com","stoka1234"), publicKey,file,dest, SymmetricKeyAlgorithmTags.AES_128,true,true,true);//gg dosta mi je za danas, odoh na DMC5
-                System.out.println("we did it bro, now go check with kleopatra");
+                //privateKeys.addPrivateKey(ks.generateKeyPair(KeyLength.RSA2048), "Stoka", "stoka@matijevic.com", "stoka1234");//vrlo sam smesan
+                //msgService.generatePGPMessage(pgpKeyPair, ks.generateKeyPair(KeyLength.RSA2048).getPublicKey(),file,dest, SymmetricKeyAlgorithmTags.AES_128,true,true,true);//gg dosta mi je za danas, odoh na DMC5
+                //System.out.println("we did it bro, now go check with kleopatra");
+                msgService.readPGPMessage(dest,privateKeys.getSecretKeys(),publicKeys.getPublicKeys());
+                System.out.println("i hope that's that");
 
             }
         } catch (PGPException e) {

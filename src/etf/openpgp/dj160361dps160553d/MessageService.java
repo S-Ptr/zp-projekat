@@ -3,9 +3,13 @@ package etf.openpgp.dj160361dps160553d;
 
 import org.bouncycastle.bcpg.*;
 import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.PGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.PGPDataEncryptorBuilder;
 import org.bouncycastle.openpgp.operator.bc.*;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -138,7 +142,166 @@ public class MessageService {
         msgOut.close();
     }
 
-    //public void readPGPMessage (File msgIn, File msgOut, PGPSecretKeyRingCollection privateKeys, PGPPublicKeyRingCollection publicKeys)
+    public void readPGPMessage (File msgIn, PGPSecretKeyRingCollection privateKeys, PGPPublicKeyRingCollection publicKeys) throws IOException, PGPException {
+        InputStream in = new FileInputStream(msgIn);
+        in = PGPUtil.getDecoderStream(new ByteArrayInputStream(in.readAllBytes()));
+
+        PGPObjectFactory objFactory = new BcPGPObjectFactory(in);
+
+        Object pgpObject = objFactory.nextObject();
+
+        PGPEncryptedDataList cypherData;
+
+        JPanel parent = new JPanel();
+
+        System.out.println("hello");
+        System.out.println(pgpObject.toString());
+
+        if (pgpObject instanceof PGPEncryptedDataList) {
+            System.out.println("decryption");
+            cypherData = (PGPEncryptedDataList) pgpObject;
+            PGPPrivateKey sessionKey = null;
+            PGPPublicKeyEncryptedData publicKeyEncryptedData = null;
+            Iterator<PGPEncryptedData> it = cypherData.getEncryptedDataObjects();
+            String userID = "";
+
+
+            while (sessionKey == null && it.hasNext()) {
+                publicKeyEncryptedData = (PGPPublicKeyEncryptedData) it.next();
+                PGPSecretKey fileSecretKey = privateKeys.getSecretKey(publicKeyEncryptedData.getKeyID());
+                if (fileSecretKey != null) {
+                    userID = fileSecretKey.getUserIDs().next();
+                    String passPhrase = null;
+                    JTextField passField = new JPasswordField();
+                    JPanel panel = new JPanel(new GridLayout(0, 1));
+                    panel.add(new JLabel("Pass for user "+userID+" :"));
+                    panel.add(passField);
+                    int result = JOptionPane.showConfirmDialog(parent, panel, "Enter the password for user " + userID, JOptionPane.OK_CANCEL_OPTION,
+                            JOptionPane.PLAIN_MESSAGE);
+                    while (result == JOptionPane.OK_OPTION) {
+                        passPhrase = passField.getText();
+                        if (!passPhrase.equals("") && passPhrase != null) break;
+                    }
+                    try {
+                        sessionKey = fileSecretKey.extractPrivateKey(new BcPBESecretKeyDecryptorBuilder(new BcPGPDigestCalculatorProvider()).build(passPhrase.toCharArray()));
+                    }catch (PGPException e) {
+                        JOptionPane.showMessageDialog(parent, "Invalid passphrase", "Decryption Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                }
+
+            }
+            if (sessionKey == null) {
+                JOptionPane.showMessageDialog(parent, "No matching private key found for decryption", "Decryption Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            InputStream decryptedData = publicKeyEncryptedData.getDataStream(new BcPublicKeyDataDecryptorFactory(sessionKey));
+            objFactory = new BcPGPObjectFactory(decryptedData);
+            pgpObject = objFactory.nextObject();
+
+        }
+        if (pgpObject instanceof PGPCompressedData) {
+            PGPCompressedData zipData = (PGPCompressedData) pgpObject;
+
+            objFactory = new BcPGPObjectFactory(zipData.getDataStream());
+
+            pgpObject = objFactory.nextObject();
+            System.out.println("Data unzipped");
+        }
+
+        if (pgpObject instanceof PGPOnePassSignatureList sigHead) {
+
+            PGPOnePassSignature ops = sigHead.get(0);
+
+            PGPLiteralData literalData = (PGPLiteralData) objFactory.nextObject();
+
+            InputStream dIn = literalData.getInputStream();
+
+            int data;
+            PGPPublicKey senderKey = publicKeys.getPublicKey(ops.getKeyID());
+
+            if (senderKey == null) {
+                JOptionPane.showMessageDialog(parent,
+                        "Signature is signed by an untrusted party. No matching public key was found in the public key ring",
+                        "Security warning",
+                        JOptionPane.WARNING_MESSAGE);
+            }
+
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            if(senderKey != null) ops.init(new BcPGPContentVerifierBuilderProvider(), senderKey);
+
+            while ((data = dIn.read()) >= 0) {
+                if(senderKey != null) ops.update((byte) data);
+                out.write(data);
+            }
+
+            PGPSignatureList senderSignature = (PGPSignatureList) objFactory.nextObject();
+            if(senderKey == null){
+                JFileChooser fileChoose = new JFileChooser();
+                fileChoose.setDialogTitle("Save message to...");
+                int choice = fileChoose.showDialog(parent, "Save");
+                if (choice == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChoose.getSelectedFile();
+                    file.createNewFile();
+                    byte[] rawData = out.toByteArray();
+                    OutputStream msgOut = new FileOutputStream(file);
+                    msgOut.write(rawData);
+                }
+                out.close();
+                return;
+            }
+
+            boolean verified = ops.verify(senderSignature.get(0));
+            if (verified) {
+                String userID = senderKey.getUserIDs().next();
+                JOptionPane.showMessageDialog(parent,
+                        "Message was signed by "+userID,
+                        "Verification successful",
+                        JOptionPane.INFORMATION_MESSAGE);
+                System.out.println("signature verified.");
+                JFileChooser fileChoose = new JFileChooser();
+                fileChoose.setDialogTitle("Save message to...");
+                int choice = fileChoose.showDialog(parent, "Save");
+                if (choice == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChoose.getSelectedFile();
+                    file.createNewFile();
+                    byte[] rawData = out.toByteArray();
+                    OutputStream msgOut = new FileOutputStream(file);
+                    msgOut.write(rawData);
+                }
+            } else {
+                JOptionPane.showMessageDialog(parent,
+                        "Signature couldn't be verified.",
+                        "Security error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+            out.close();
+
+        } else if (pgpObject instanceof PGPLiteralData) {
+            PGPLiteralData rawData = (PGPLiteralData) pgpObject;
+            InputStream rawDataStream = rawData.getInputStream();
+            JFileChooser fileChoose = new JFileChooser();
+            fileChoose.setDialogTitle("Export message to...");
+            int choice = fileChoose.showDialog(parent, "save");
+            if (choice == JFileChooser.APPROVE_OPTION) {
+                File file = fileChoose.getSelectedFile();
+                file.createNewFile();
+                FileOutputStream out = new FileOutputStream(file);
+                int data;
+                while ((data = rawDataStream.read()) >= 0) {
+                    out.write(data);
+                }
+                out.close();
+            }
+
+
+        }
+
+
+    }
 
 
 }

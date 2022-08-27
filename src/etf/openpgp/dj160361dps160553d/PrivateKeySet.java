@@ -28,6 +28,10 @@ public class PrivateKeySet {
         this.hashCalculator = new BcPGPDigestCalculatorProvider();
     }
 
+    public PGPSecretKey getSecretKey(long keyID) throws PGPException {
+        return secretKeys.getSecretKey(keyID);
+    }
+
     public void addPrivateKey (PGPKeyPair keyPair, String name, String email, String passphrase){
         try {
             PGPSecretKey key = new PGPSecretKey(PGPSignature.POSITIVE_CERTIFICATION, keyPair, name + " <" + email + ">",
