@@ -53,7 +53,7 @@ public class HelloWorld {
                 File file = fileChoose.getSelectedFile();
                 File dest = new File("target.asc");
                 dest.createNewFile();
-                //msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.AES_128,true,true,true); //works
+                msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.AES_128,true,true,true); //works
                 //msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.AES_128,false,true,true); //works
                 //msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.AES_128,true,false,true);//works
                 //msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.AES_128,true,true,false); //works
@@ -62,7 +62,7 @@ public class HelloWorld {
                 //msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.NULL,true,true,false); //i think it works?
                 //msgService.generatePGPMessage(pgpKeyPair, publicKey,file,dest, SymmetricKeyAlgorithmTags.NULL,true,false,false);//works
                 privateKeys.addPrivateKey(ks.generateKeyPair(KeyLength.RSA2048), "Stoka", "stoka@matijevic.com", "stoka1234");//vrlo sam smesan
-                msgService.generatePGPMessage(privateKeys.getKeyPair("stoka@matijevic.com","stoka1234"), publicKey,file,dest, SymmetricKeyAlgorithmTags.AES_128,true,true,true);//gg dosta mi je za danas, odoh na DMC5
+                //msgService.generatePGPMessage(privateKeys.getKeyPair("stoka@matijevic.com","stoka1234"), publicKey,file,dest, SymmetricKeyAlgorithmTags.AES_128,true,true,true);//gg dosta mi je za danas, odoh na DMC5
                 System.out.println("we did it bro, now go check with kleopatra");
 
             }

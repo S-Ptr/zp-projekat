@@ -37,6 +37,14 @@ public class PublicKeySet {
 
     }
 
+    public void importKeysFromFile(File file) throws IOException, PGPException {
+        KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
+        PGPPublicKeyRingCollection fileKeys = new PGPPublicKeyRingCollection(new ArmoredInputStream(new FileInputStream(file)), fingerprintCalc);
+        for (PGPPublicKeyRing keyRing : fileKeys) {
+            this.publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(this.publicKeys, keyRing);
+        }
+    }
+
     public void exportKeyToFile(String user) throws PGPException, IOException {
         JFrame parent = new JFrame();
         Iterator<PGPPublicKeyRing> matchingPublicKeys = this.publicKeys.getKeyRings(user, true);//partial matches allowed
@@ -56,6 +64,18 @@ public class PublicKeySet {
         }else{
             System.out.println("exportKeyToFile - No such public key found: "+user);
         }
+    }
+
+    public void exportKeyToFile(String user, File file) throws PGPException, IOException {
+        Iterator<PGPPublicKeyRing> matchingPublicKeys = this.publicKeys.getKeyRings(user, true);//partial matches allowed
+        if (!matchingPublicKeys.hasNext()) {
+            throw new PGPException("No matching key found");
+        }
+        PGPPublicKeyRing publicKeyRing = matchingPublicKeys.next();
+        OutputStream secretOut = new FileOutputStream(file.getAbsolutePath() + ".asc");
+        secretOut = new ArmoredOutputStream(secretOut);
+        publicKeyRing.encode(secretOut);
+        secretOut.close();
     }
 
     public PGPPublicKey getPublicKey(String user) throws PGPException {

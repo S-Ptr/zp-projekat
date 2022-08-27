@@ -22,7 +22,6 @@ public class MessageService {
         PGPEncryptedDataGenerator encryptor;
         byte[] writeData;
 
-
         File inFile = inputFile;
         OutputStream msgOut = new FileOutputStream(outputFile.getAbsolutePath());
         InputStream msgIn = new FileInputStream(inputFile.getAbsolutePath());
@@ -125,11 +124,6 @@ public class MessageService {
             }
 
         }
-
-
-
-
-
         //PGPUtil.writeFileToLiteralData(msgOut, PGPLiteralData.BINARY, (toAuth)?new File("tempMsg.asc"):inputFile, buffer);
 
         /*InputStream fileIn2 = new FileInputStream((toAuth)?new File("tempMsg.asc"):inputFile);
@@ -142,9 +136,9 @@ public class MessageService {
         finalOut.write(writeData);
         finalOut.close();
         msgOut.close();
-
-
     }
+
+    //public void readPGPMessage (File msgIn, File msgOut, PGPSecretKeyRingCollection privateKeys, PGPPublicKeyRingCollection publicKeys)
 
 
 }

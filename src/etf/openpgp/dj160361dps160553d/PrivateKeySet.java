@@ -151,6 +151,19 @@ public class PrivateKeySet {
         }
     }
 
+    public void exportPublicKey(String user, File file) throws IOException, PGPException {
+        Iterator<PGPSecretKeyRing> matchingSecretKeys = this.secretKeys.getKeyRings(user, true);//partial matches allowed
+        if (matchingSecretKeys.hasNext()) {
+            PGPSecretKeyRing keyRing = matchingSecretKeys.next();
+                OutputStream secretOut = new FileOutputStream(file.getAbsolutePath() + ".asc");
+                secretOut = new ArmoredOutputStream(secretOut);
+                keyRing.getPublicKey().encode(secretOut);
+                secretOut.close();
+        }else{
+            System.out.println("No matching secret key");
+        }
+    }
+
     public PGPSecretKeyRingCollection getSecretKeys() {
         return this.secretKeys;
     }
