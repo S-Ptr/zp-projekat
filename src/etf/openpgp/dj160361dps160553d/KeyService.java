@@ -42,7 +42,7 @@ public class KeyService {
         keygen1024.initialize(1024);
         keygen2048.initialize(2048);
         keygen4096.initialize(4096);
-        KeyPair keyPair = keygen2048.generateKeyPair();
+        /*KeyPair keyPair = keygen2048.generateKeyPair();
         PublicKey pub = keyPair.getPublic();
         PrivateKey priv = keyPair.getPrivate();
         String privateKey = new String(Base64.encode(priv.getEncoded()));
@@ -56,14 +56,13 @@ public class KeyService {
         privateKey = new String(Base64.encode(priv.getEncoded()));
         publicKey = new String(Base64.encode(pub.getEncoded()));
         System.out.println(privateKey);
-        System.out.println(publicKey);
+        System.out.println(publicKey);*/
 
 
     }
 
     public PGPKeyPair generateKeyPair(KeyLength keyLength) throws IllegalArgumentException, PGPException {
         PGPKeyPair asymmetricCipherKeyPair;
-
         switch(keyLength) {
             case RSA1024:
                 asymmetricCipherKeyPair = new JcaPGPKeyPair(PGPPublicKey.RSA_GENERAL, keygen1024.generateKeyPair(), new Date());
