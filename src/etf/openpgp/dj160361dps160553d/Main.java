@@ -194,6 +194,16 @@ public class Main {
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
+    public static void resetToMain() {
+        if (swapPanel(Panels.MAIN)) {
+            mainFrame.invalidate();
+            mainFrame.revalidate();
+            mainFrame.pack();
+            mainFrame.setLocationRelativeTo(null);
+            mainFrame.setBounds(600, 300, 700, 500);
+        }
+    }
+
     public static boolean swapPanel(Panels nextPanel) {
         if (currentPanel == nextPanel) return false;
         boolean result = false;

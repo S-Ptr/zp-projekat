@@ -2,10 +2,7 @@ package etf.openpgp.dj160361dps160553d.service;
 
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
-import org.bouncycastle.openpgp.PGPException;
-import org.bouncycastle.openpgp.PGPPublicKey;
-import org.bouncycastle.openpgp.PGPPublicKeyRing;
-import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
+import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.operator.KeyFingerPrintCalculator;
 import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 
@@ -19,8 +16,19 @@ public class PublicKeySet {
     public static PGPPublicKeyRingCollection publicKeys;
 
     static {
+        File publicKeysFile = new File("public.asc");
         try {
-            publicKeys = new PGPPublicKeyRingCollection(new ArrayList<>());
+            if (publicKeysFile.createNewFile()) {
+                JOptionPane.showMessageDialog(null, "File with public keys doesn't exist, so they are not imported. Please create one!");
+                publicKeys = new PGPPublicKeyRingCollection(new ArrayList<>());
+            } else {
+                publicKeys = new PGPPublicKeyRingCollection(new ArrayList<>());
+                KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
+                PGPPublicKeyRingCollection fileKeys = new PGPPublicKeyRingCollection(new ArmoredInputStream(new FileInputStream(publicKeysFile)), fingerprintCalc);
+                for (PGPPublicKeyRing keyRing : fileKeys) {
+                    publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, keyRing);
+                }
+            }
         } catch (IOException | PGPException e) {
             throw new RuntimeException(e);
         }

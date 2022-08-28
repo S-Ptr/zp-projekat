@@ -1,8 +1,10 @@
 package etf.openpgp.dj160361dps160553d.view;
 
+import etf.openpgp.dj160361dps160553d.Main;
 import etf.openpgp.dj160361dps160553d.model.KeyLength;
 import etf.openpgp.dj160361dps160553d.model.User;
 import etf.openpgp.dj160361dps160553d.service.KeyService;
+import etf.openpgp.dj160361dps160553d.service.PrivateKeySet;
 import etf.openpgp.dj160361dps160553d.service.PublicKeySet;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyPair;
@@ -65,8 +67,7 @@ public class GenerateKeyPanel extends JPanel {
         buttonGenerate.addActionListener(e -> {
             User user = new User(fieldName.getText(), fieldEmail.getText(),
                     comboBoxAlgorithm.getItemAt(comboBoxAlgorithm.getSelectedIndex()), fieldPassword.getText());
-            System.out.println("User " + user.isValid());
-            System.out.println("User " + user);
+
             if (!user.isValid()) {
                 JOptionPane.showMessageDialog(null, "Please enter data!");
                 return;
@@ -80,7 +81,8 @@ public class GenerateKeyPanel extends JPanel {
                 JOptionPane.showMessageDialog(null, "An error occurred during generating keys!");
                 throw new RuntimeException(ex);
             }
-            PublicKeySet.addPublicKeyRing(generatedKeyPair.getPublicKey());
+            PrivateKeySet.addPrivateKey(generatedKeyPair, user);
+            Main.resetToMain();
         });
 
         this.setBorder(BorderFactory.createTitledBorder(

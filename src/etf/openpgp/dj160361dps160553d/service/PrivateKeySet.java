@@ -1,6 +1,7 @@
 package etf.openpgp.dj160361dps160553d.service;
 
 import etf.openpgp.dj160361dps160553d.InvalidPasswordException;
+import etf.openpgp.dj160361dps160553d.model.User;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
@@ -12,8 +13,9 @@ import org.bouncycastle.openpgp.operator.bc.*;
 
 import javax.swing.*;
 import java.io.*;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class PrivateKeySet {
 
@@ -21,8 +23,19 @@ public class PrivateKeySet {
     private static final PGPDigestCalculatorProvider hashCalculator = new BcPGPDigestCalculatorProvider();
 
     static {
+        File secretKeysFile = new File("secret.asc");
         try {
-            secretKeys = new PGPSecretKeyRingCollection(new ArrayList<>());
+            if (secretKeysFile.createNewFile()) {
+                JOptionPane.showMessageDialog(null, "File with public keys doesn't exist, so they are not imported. Please create one!");
+                secretKeys = new PGPSecretKeyRingCollection(new ArrayList<>());
+            } else {
+                secretKeys = new PGPSecretKeyRingCollection(new ArrayList<>());
+                KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
+                PGPSecretKeyRingCollection fileKeys = new PGPSecretKeyRingCollection(new ArmoredInputStream(new FileInputStream(secretKeysFile)), fingerprintCalc);
+                for (PGPSecretKeyRing keyRing : fileKeys) {
+                    secretKeys = PGPSecretKeyRingCollection.addSecretKeyRing(secretKeys, keyRing);
+                }
+            }
         } catch (IOException | PGPException e) {
             throw new RuntimeException(e);
         }
@@ -51,24 +64,23 @@ public class PrivateKeySet {
         return secretKeysArray;
     }
 
-    public static ArrayList<String> getSecretKeysArray() {
+    public static String[] getSecretKeysArray() {
         ArrayList<String> secretKeysArray = new ArrayList<>();
         secretKeys.getKeyRings().forEachRemaining(pgpSecretKeys -> {
             String[] array = (new String(pgpSecretKeys.getPublicKeys().next().getRawUserIDs().next())).split(" ");
             secretKeysArray.add(array[0] + " " + array[1].substring(1, array[1].length() - 1) + " " + Long.toHexString(pgpSecretKeys.getPublicKeys().next().getKeyID()));
-
         });
-        return secretKeysArray;
+        return secretKeysArray.toArray(String[]::new);
     }
 
-    public void addPrivateKey(PGPKeyPair keyPair, String name, String email, String passphrase) {
+    public static void addPrivateKey(PGPKeyPair keyPair, User user) {
         try {
-            PGPSecretKey key = new PGPSecretKey(PGPSignature.POSITIVE_CERTIFICATION, keyPair, name + " <" + email + ">",
+            PGPSecretKey key = new PGPSecretKey(PGPSignature.POSITIVE_CERTIFICATION, keyPair, user.getName() + " <" + user.getEmail() + ">",
                     hashCalculator.get(HashAlgorithmTags.SHA1),
                     null, null,
                     new BcPGPContentSignerBuilder(keyPair.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1),
                     new BcPBESecretKeyEncryptorBuilder(SymmetricKeyAlgorithmTags.AES_128,
-                            hashCalculator.get(HashAlgorithmTags.SHA1)).build(passphrase.toCharArray()));
+                            hashCalculator.get(HashAlgorithmTags.SHA1)).build(user.getPassword().toCharArray()));
             List<PGPSecretKey> keyRing = new ArrayList<>();
             keyRing.add(key);
             secretKeys = PGPSecretKeyRingCollection.addSecretKeyRing(secretKeys, new PGPSecretKeyRing(keyRing));

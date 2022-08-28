@@ -1,18 +1,14 @@
 package etf.openpgp.dj160361dps160553d.view;
 
 import etf.openpgp.dj160361dps160553d.model.Message;
-import etf.openpgp.dj160361dps160553d.model.User;
-import etf.openpgp.dj160361dps160553d.service.KeyService;
 import etf.openpgp.dj160361dps160553d.service.PrivateKeySet;
-import etf.openpgp.dj160361dps160553d.service.PublicKeySet;
-import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.PGPException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
 
 public class SendMessagePanel extends JPanel {
 
@@ -46,14 +42,27 @@ public class SendMessagePanel extends JPanel {
 
         constraints.gridx = 0;
         constraints.gridy = 1;
-        for (int i = 0; i < PrivateKeySet.getSecretKeysArray().size(); i++) {
-            System.out.println(PrivateKeySet.getSecretKeysArray().get(i));
+        for (int i = 0; i < PrivateKeySet.getSecretKeysArray().length; i++) {
+            System.out.println(PrivateKeySet.getSecretKeysArray()[i]);
         }
-        JComboBox<String> authenticationCombo = new JComboBox<>(PrivateKeySet.getSecretKeysArray().toArray(new String[PrivateKeySet.getSecretKeysArray().size()]));
+
+        JComboBox<String> authenticationCombo = new JComboBox<>(PrivateKeySet.getSecretKeysArray());
         JLabel labelAuthentication = new JLabel("Choose key for authentication:");
         authenticationCombo.setEnabled(false);
         labelAuthentication.setEnabled(false);
-        add(authenticationCombo, constraints);
+
+        JCheckBox authenticationCheckBox = new JCheckBox("Enable authentication");
+        authenticationCheckBox.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                labelAuthentication.setEnabled(!labelAuthentication.isEnabled());
+                authenticationCombo.setEnabled(!authenticationCombo.isEnabled());
+            }
+        });
+        add(authenticationCheckBox);
+        add(labelAuthentication);
+        add(authenticationCombo);
 
     }
 }
