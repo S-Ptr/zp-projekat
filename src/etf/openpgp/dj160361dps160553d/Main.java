@@ -2,6 +2,7 @@ package etf.openpgp.dj160361dps160553d;
 
 import etf.openpgp.dj160361dps160553d.model.Panels;
 import etf.openpgp.dj160361dps160553d.view.GenerateKeyPanel;
+import etf.openpgp.dj160361dps160553d.view.SendMessagePanel;
 import etf.openpgp.dj160361dps160553d.view.ViewPrivateKeyRingPanel;
 import etf.openpgp.dj160361dps160553d.view.ViewPublicKeyRingPanel;
 import org.bouncycastle.openpgp.PGPException;
@@ -19,6 +20,8 @@ public class Main {
     public static ViewPrivateKeyRingPanel viewPrivateKeyRingPanel;
 
     public static ViewPublicKeyRingPanel viewPublicKeyRingPanel;
+
+    public static SendMessagePanel sendMessagePanel;
 
     public static void main(String[] args) {
 
@@ -157,11 +160,25 @@ public class Main {
         AbstractAction sendMessage = new AbstractAction("Send Message") {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                try {
+                    sendMessagePanel = new SendMessagePanel();
+                } catch (PGPException | IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                if (swapPanel(Panels.SEND_MESSAGE)) {
+                    mainFrame.add(sendMessagePanel);
+                    mainFrame.invalidate();
+                    mainFrame.revalidate();
+                } else {
+                    mainFrame.add(sendMessagePanel);
+                }
+                mainFrame.pack();
+                mainFrame.setLocationRelativeTo(null);
+                mainFrame.setBounds(600, 300, 700, 500);
             }
         };
         JMenuItem sendMessageMenu = new JMenuItem(sendMessage);
-        importMenu.add(sendMessageMenu);
+        messageMenu.add(sendMessageMenu);
 
         AbstractAction receiveMessage = new AbstractAction("Receive Message") {
             @Override
@@ -170,7 +187,7 @@ public class Main {
             }
         };
         JMenuItem receiveMessageMenu = new JMenuItem(receiveMessage);
-        importMenu.add(receiveMessageMenu);
+        messageMenu.add(receiveMessageMenu);
 
         mainFrame.setBounds(600, 300, 700, 500);
         mainFrame.setVisible(true);
@@ -196,6 +213,11 @@ public class Main {
             }
             case VIEW_PRIVATE_KEY_RING -> {
                 mainFrame.remove(viewPrivateKeyRingPanel);
+                currentPanel = nextPanel;
+                result = true;
+            }
+            case SEND_MESSAGE -> {
+                mainFrame.remove(sendMessagePanel);
                 currentPanel = nextPanel;
                 result = true;
             }

@@ -12,20 +12,53 @@ import org.bouncycastle.openpgp.operator.bc.*;
 
 import javax.swing.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class PrivateKeySet {
 
     private static PGPSecretKeyRingCollection secretKeys;
     private static final PGPDigestCalculatorProvider hashCalculator = new BcPGPDigestCalculatorProvider();
 
-    public PrivateKeySet() throws PGPException, IOException {
+    static {
+        try {
+            secretKeys = new PGPSecretKeyRingCollection(new ArrayList<>());
+        } catch (IOException | PGPException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static PGPSecretKeyRingCollection getSecretKeys() {
         return secretKeys;
+    }
+
+    public static Object[][] getSecretKeysMatrix() {
+        ArrayList<ArrayList<Object>> secretKeysArrayList = new ArrayList<>();
+        secretKeys.getKeyRings().forEachRemaining(pgpSecretKeys -> {
+            ArrayList<Object> objectArrayList = new ArrayList<>();
+            String[] array = (new String(pgpSecretKeys.getPublicKeys().next().getRawUserIDs().next())).split(" ");
+            objectArrayList.add(array[0]);
+            objectArrayList.add(array[1].substring(1, array[1].length() - 1));
+            objectArrayList.add(Long.toHexString(pgpSecretKeys.getPublicKeys().next().getKeyID()));
+            secretKeysArrayList.add(objectArrayList);
+        });
+        Object[][] secretKeysArray = new Object[PrivateKeySet.getSecretKeys().size()][3];
+        for (int i = 0; i < secretKeys.size(); i++) {
+            secretKeysArray[i][0] = secretKeysArrayList.get(i).get(0);
+            secretKeysArray[i][1] = secretKeysArrayList.get(i).get(1);
+            secretKeysArray[i][2] = secretKeysArrayList.get(i).get(2);
+        }
+        return secretKeysArray;
+    }
+
+    public static ArrayList<String> getSecretKeysArray() {
+        ArrayList<String> secretKeysArray = new ArrayList<>();
+        secretKeys.getKeyRings().forEachRemaining(pgpSecretKeys -> {
+            String[] array = (new String(pgpSecretKeys.getPublicKeys().next().getRawUserIDs().next())).split(" ");
+            secretKeysArray.add(array[0] + " " + array[1].substring(1, array[1].length() - 1) + " " + Long.toHexString(pgpSecretKeys.getPublicKeys().next().getKeyID()));
+
+        });
+        return secretKeysArray;
     }
 
     public void addPrivateKey(PGPKeyPair keyPair, String name, String email, String passphrase) {
@@ -115,8 +148,6 @@ public class PrivateKeySet {
     }
 
     public static void importKeyPairsFromFile(File file) throws IOException, PGPException {
-        if (secretKeys == null)
-            secretKeys = new PGPSecretKeyRingCollection(new ArrayList<>());
         KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
         PGPSecretKeyRingCollection fileKeys = new PGPSecretKeyRingCollection(new ArmoredInputStream(new FileInputStream(file)), fingerprintCalc);
         for (PGPSecretKeyRing keyRing : fileKeys) {

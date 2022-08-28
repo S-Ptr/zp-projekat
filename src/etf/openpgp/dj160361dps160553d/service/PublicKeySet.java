@@ -30,6 +30,25 @@ public class PublicKeySet {
         return publicKeys;
     }
 
+    public static Object[][] getPublicKeysMatrix() {
+        ArrayList<ArrayList<Object>> publicKeysArrayList = new ArrayList<>();
+        publicKeys.getKeyRings().forEachRemaining(pgpPublicKeys -> {
+            ArrayList<Object> objectArrayList = new ArrayList<>();
+            String[] array = (new String(pgpPublicKeys.getPublicKeys().next().getRawUserIDs().next())).split(" ");
+            objectArrayList.add(array[0]);
+            objectArrayList.add(array[1].substring(1, array[1].length() - 1));
+            objectArrayList.add(Long.toHexString(pgpPublicKeys.getPublicKeys().next().getKeyID()));
+            publicKeysArrayList.add(objectArrayList);
+        });
+        Object[][] publicKeysArray = new Object[PublicKeySet.getPublicKeys().size()][3];
+        for (int i = 0; i < publicKeys.size(); i++) {
+            publicKeysArray[i][0] = publicKeysArrayList.get(i).get(0);
+            publicKeysArray[i][1] = publicKeysArrayList.get(i).get(1);
+            publicKeysArray[i][2] = publicKeysArrayList.get(i).get(2);
+        }
+        return publicKeysArray;
+    }
+
     public static void addPublicKeyRing(PGPPublicKey publicKey) {
         ArrayList<PGPPublicKey> list = new ArrayList<>();
         list.add(publicKey);

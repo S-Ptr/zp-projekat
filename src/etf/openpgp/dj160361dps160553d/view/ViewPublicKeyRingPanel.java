@@ -16,7 +16,7 @@ public class ViewPublicKeyRingPanel extends JPanel {
 
         this.setLayout(new BorderLayout());
 
-        String[] columnNames = {"Name", "E-mail", "Timestamp", "KeyID"};
+        String[] columnNames = {"Name", "E-mail", "KeyID"};
 
         if (PublicKeySet.getPublicKeys() == null || PublicKeySet.getPublicKeys().size() == 0) {
             File publicKeysFile = new File("public.asc");
@@ -24,20 +24,7 @@ public class ViewPublicKeyRingPanel extends JPanel {
             PublicKeySet.importKeysFromFile(publicKeysFile);
         }
 
-        Object[][] publicKeysData = new Object[PublicKeySet.getPublicKeys().size()][4];
-        int i = 0;
-        PublicKeySet.getPublicKeys().getKeyRings().forEachRemaining(pgpSecretKeys -> {
-            String identity = new String(pgpSecretKeys.getPublicKeys().next().getRawUserIDs().next());
-
-            publicKeysData[i][0] = identity.split(" ")[0];
-            publicKeysData[i][1] = identity.split(" ")[1].substring(1, identity.split(" ")[1].length() - 1);
-
-            publicKeysData[i][2] = pgpSecretKeys.getPublicKeys().next().getPublicKeyPacket().getTime().toString();
-            publicKeysData[i][3] = Long.toHexString(pgpSecretKeys.getPublicKeys().next().getKeyID());
-
-        });
-
-        JTable privateKeyRingTable = new JTable(publicKeysData, columnNames);
+        JTable privateKeyRingTable = new JTable(PublicKeySet.getPublicKeysMatrix(), columnNames);
         JScrollPane jScrollPane = new JScrollPane(privateKeyRingTable);
         this.add(jScrollPane, BorderLayout.CENTER);
 

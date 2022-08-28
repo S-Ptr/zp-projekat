@@ -5,7 +5,9 @@ public enum Panels {
     GENERATE_KEY_PAIR(1),
     DELETE_KEY_PAIR(2),
     VIEW_PUBLIC_KEY_RING(3),
-    VIEW_PRIVATE_KEY_RING(4);
+    VIEW_PRIVATE_KEY_RING(4),
+
+    SEND_MESSAGE(5);
     private final int screen;
 
     Panels(int screen) {
