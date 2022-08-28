@@ -120,6 +120,7 @@ public class Main {
         boolean result = false;
         switch (currentPanel) {
             case MAIN, DELETE_KEY_PAIR -> {
+                currentPanel = nextPanel;
             }
             case GENERATE_KEY_PAIR -> {
                 mainFrame.remove(generateKeyPanel);

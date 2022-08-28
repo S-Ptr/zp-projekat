@@ -115,8 +115,8 @@ public class PrivateKeySet {
     }
 
     public static void importKeyPairsFromFile(File file) throws IOException, PGPException {
-        System.out.println(file.getAbsolutePath());
-        secretKeys = new PGPSecretKeyRingCollection(new ArrayList<>());
+        if (secretKeys == null)
+            secretKeys = new PGPSecretKeyRingCollection(new ArrayList<>());
         KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
         PGPSecretKeyRingCollection fileKeys = new PGPSecretKeyRingCollection(new ArmoredInputStream(new FileInputStream(file)), fingerprintCalc);
         for (PGPSecretKeyRing keyRing : fileKeys) {
