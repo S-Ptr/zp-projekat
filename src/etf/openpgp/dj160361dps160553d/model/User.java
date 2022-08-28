@@ -13,4 +13,9 @@ public class User {
     private String email;
     private KeyLength rsaAlgorithm;
     private String password;
+
+    public boolean isValid() {
+        return name != null && email != null && rsaAlgorithm != null && password != null
+                && name.length() != 0 && email.length() != 0 && password.length() != 0;
+    }
 }

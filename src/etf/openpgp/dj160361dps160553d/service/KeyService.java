@@ -12,12 +12,11 @@ import java.util.Date;
 
 public class KeyService {
 
-    private static KeyPairGenerator keygen1024;
-    private static KeyPairGenerator keygen2048;
-    private static KeyPairGenerator keygen4096;
+    private static final KeyPairGenerator keygen1024;
+    private static final KeyPairGenerator keygen2048;
+    private static final KeyPairGenerator keygen4096;
 
-
-    public KeyService() {
+    static {
         try {
             keygen1024 = KeyPairGenerator.getInstance("RSA");
             keygen2048 = KeyPairGenerator.getInstance("RSA");

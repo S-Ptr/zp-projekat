@@ -11,15 +11,14 @@ import java.io.IOException;
 public class ViewPrivateKeyRingPanel extends JPanel {
 
     public ViewPrivateKeyRingPanel() throws PGPException, IOException {
-        this.setLayout(new GridBagLayout());
+        this.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "Private Keys"));
 
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(10, 10, 10, 10);
+        this.setLayout(new BorderLayout());
 
         String[] columnNames = {"Name", "E-mail", "Timestamp", "KeyID"};
 
-        if (PrivateKeySet.getSecretKeys() == null) {
+        if (PrivateKeySet.getSecretKeys() == null || PrivateKeySet.getSecretKeys().size() == 0) {
             File secretFile = new File("secret.asc");
             secretFile.createNewFile(); // if file already exists will do nothing
             PrivateKeySet.importKeyPairsFromFile(secretFile);
@@ -40,6 +39,7 @@ public class ViewPrivateKeyRingPanel extends JPanel {
 
         JTable privateKeyRingTable = new JTable(privateKeyData, columnNames);
         JScrollPane jScrollPane = new JScrollPane(privateKeyRingTable);
-        this.add(jScrollPane);
+        this.add(jScrollPane, BorderLayout.CENTER);
+
     }
 }

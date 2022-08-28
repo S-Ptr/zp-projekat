@@ -3,21 +3,22 @@ package etf.openpgp.dj160361dps160553d.view;
 import etf.openpgp.dj160361dps160553d.model.KeyLength;
 import etf.openpgp.dj160361dps160553d.model.User;
 import etf.openpgp.dj160361dps160553d.service.KeyService;
+import etf.openpgp.dj160361dps160553d.service.PublicKeySet;
 import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPKeyPair;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class GenerateKeyPanel extends JPanel {
-    private final JLabel labelName = new JLabel("Enter name: ");
-    private final JLabel labelEmail = new JLabel("Enter email: ");
     private final JTextField fieldName = new JTextField(20);
+
     private final JTextField fieldEmail = new JTextField(20);
+    private final JTextField fieldPassword = new JPasswordField(20);
     private final JComboBox<KeyLength> comboBoxAlgorithm = new JComboBox<>(KeyLength.values());
 
-    private final Button buttonGenerate = new Button("Generate Key Pair");
-
     public GenerateKeyPanel() {
+
         this.setLayout(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -26,6 +27,7 @@ public class GenerateKeyPanel extends JPanel {
 
         constraints.gridx = 0;
         constraints.gridy = 0;
+        JLabel labelName = new JLabel("Enter name: ");
         this.add(labelName, constraints);
 
         constraints.gridx = 1;
@@ -33,6 +35,7 @@ public class GenerateKeyPanel extends JPanel {
 
         constraints.gridx = 0;
         constraints.gridy = 1;
+        JLabel labelEmail = new JLabel("Enter email: ");
         this.add(labelEmail, constraints);
 
         constraints.gridx = 1;
@@ -44,18 +47,40 @@ public class GenerateKeyPanel extends JPanel {
         constraints.anchor = GridBagConstraints.CENTER;
         this.add(comboBoxAlgorithm, constraints);
 
-        constraints.gridy = 4;
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        constraints.anchor = GridBagConstraints.WEST;
+        JLabel labelPassword = new JLabel("Enter password: ");
+        this.add(labelPassword, constraints);
+
+        constraints.gridx = 1;
+        this.add(fieldPassword, constraints);
+
+        constraints.gridy = 5;
         constraints.gridwidth = 2;
         constraints.anchor = GridBagConstraints.CENTER;
+        Button buttonGenerate = new Button("Generate Key Pair");
         this.add(buttonGenerate, constraints);
 
         buttonGenerate.addActionListener(e -> {
+            User user = new User(fieldName.getText(), fieldEmail.getText(),
+                    comboBoxAlgorithm.getItemAt(comboBoxAlgorithm.getSelectedIndex()), fieldPassword.getText());
+            System.out.println("User " + user.isValid());
+            System.out.println("User " + user);
+            if (!user.isValid()) {
+                JOptionPane.showMessageDialog(null, "Please enter data!");
+                return;
+            }
+
+            PGPKeyPair generatedKeyPair;
             try {
-                KeyService.generateKeyPair(new User(fieldName.getText(), fieldEmail.getText(),
+                generatedKeyPair = KeyService.generateKeyPair(new User(fieldName.getText(), fieldEmail.getText(),
                         comboBoxAlgorithm.getItemAt(comboBoxAlgorithm.getSelectedIndex()), null));
             } catch (PGPException ex) {
+                JOptionPane.showMessageDialog(null, "An error occurred during generating keys!");
                 throw new RuntimeException(ex);
             }
+            PublicKeySet.addPublicKeyRing(generatedKeyPair.getPublicKey());
         });
 
         this.setBorder(BorderFactory.createTitledBorder(

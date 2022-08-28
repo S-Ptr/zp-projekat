@@ -110,6 +110,68 @@ public class Main {
         JMenuItem viewSecretKeyRingMenu = new JMenuItem(viewSecretKeyRingAction);
         viewMenu.add(viewSecretKeyRingMenu);
 
+        JMenu importMenu = new JMenu("Import");
+        menuBar.add(importMenu);
+        AbstractAction importPublicKey = new AbstractAction("Import Public Key") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        };
+        JMenuItem importPublicKeyMenu = new JMenuItem(importPublicKey);
+        importMenu.add(importPublicKeyMenu);
+
+        AbstractAction importPrivateKey = new AbstractAction("Import Private Key") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        };
+        JMenuItem importPrivateKeyMenu = new JMenuItem(importPrivateKey);
+        importMenu.add(importPrivateKeyMenu);
+
+
+        JMenu exportMenu = new JMenu("Export");
+        menuBar.add(exportMenu);
+        AbstractAction exportPublicKey = new AbstractAction("Export Public Key") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        };
+        JMenuItem exportPublicKeyMenu = new JMenuItem(exportPublicKey);
+        importMenu.add(exportPublicKeyMenu);
+
+        AbstractAction exportPrivateKey = new AbstractAction("Export Private Key") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        };
+        JMenuItem exportPrivateKeyMenu = new JMenuItem(exportPrivateKey);
+        importMenu.add(exportPrivateKeyMenu);
+
+
+        JMenu messageMenu = new JMenu("Message");
+        menuBar.add(messageMenu);
+        AbstractAction sendMessage = new AbstractAction("Send Message") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        };
+        JMenuItem sendMessageMenu = new JMenuItem(sendMessage);
+        importMenu.add(sendMessageMenu);
+
+        AbstractAction receiveMessage = new AbstractAction("Receive Message") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        };
+        JMenuItem receiveMessageMenu = new JMenuItem(receiveMessage);
+        importMenu.add(receiveMessageMenu);
+
         mainFrame.setBounds(600, 300, 700, 500);
         mainFrame.setVisible(true);
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

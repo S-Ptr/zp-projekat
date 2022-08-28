@@ -18,16 +18,19 @@ public class PublicKeySet {
 
     public static PGPPublicKeyRingCollection publicKeys;
 
-
-    public PublicKeySet() throws PGPException, IOException {
-        publicKeys = new PGPPublicKeyRingCollection(new ArrayList<>());
+    static {
+        try {
+            publicKeys = new PGPPublicKeyRingCollection(new ArrayList<>());
+        } catch (IOException | PGPException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static PGPPublicKeyRingCollection getPublicKeys() {
         return publicKeys;
     }
 
-    public void addPublicKeyRing(PGPPublicKey publicKey) {
+    public static void addPublicKeyRing(PGPPublicKey publicKey) {
         ArrayList<PGPPublicKey> list = new ArrayList<>();
         list.add(publicKey);
         publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, new PGPPublicKeyRing(list));
@@ -50,8 +53,6 @@ public class PublicKeySet {
     }
 
     public static void importKeysFromFile(File file) throws IOException, PGPException {
-        if (publicKeys == null)
-            publicKeys = new PGPPublicKeyRingCollection(new ArrayList<>());
         KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
         PGPPublicKeyRingCollection fileKeys = new PGPPublicKeyRingCollection(new ArmoredInputStream(new FileInputStream(file)), fingerprintCalc);
         for (PGPPublicKeyRing keyRing : fileKeys) {
