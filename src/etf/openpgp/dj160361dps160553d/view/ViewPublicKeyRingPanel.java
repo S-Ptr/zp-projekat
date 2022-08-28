@@ -24,8 +24,8 @@ public class ViewPublicKeyRingPanel extends JPanel {
             PublicKeySet.importKeysFromFile(publicKeysFile);
         }
 
-        JTable privateKeyRingTable = new JTable(PublicKeySet.getPublicKeysMatrix(), columnNames);
-        JScrollPane jScrollPane = new JScrollPane(privateKeyRingTable);
+        JTable publicKeyRingTable = new JTable(PublicKeySet.getPublicKeysMatrix(), columnNames);
+        JScrollPane jScrollPane = new JScrollPane(publicKeyRingTable);
         this.add(jScrollPane, BorderLayout.CENTER);
 
     }

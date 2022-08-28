@@ -1,10 +1,9 @@
 package etf.openpgp.dj160361dps160553d;
 
 import etf.openpgp.dj160361dps160553d.model.Panels;
-import etf.openpgp.dj160361dps160553d.view.GenerateKeyPanel;
-import etf.openpgp.dj160361dps160553d.view.SendMessagePanel;
-import etf.openpgp.dj160361dps160553d.view.ViewPrivateKeyRingPanel;
-import etf.openpgp.dj160361dps160553d.view.ViewPublicKeyRingPanel;
+import etf.openpgp.dj160361dps160553d.service.PrivateKeySet;
+import etf.openpgp.dj160361dps160553d.service.PublicKeySet;
+import etf.openpgp.dj160361dps160553d.view.*;
 import org.bouncycastle.openpgp.PGPException;
 
 import javax.swing.*;
@@ -17,9 +16,15 @@ public class Main {
     public static Panels currentPanel;
     public static GenerateKeyPanel generateKeyPanel;
 
+    public static DeleteKeyPanel deleteKeyPanel;
+
     public static ViewPrivateKeyRingPanel viewPrivateKeyRingPanel;
 
     public static ViewPublicKeyRingPanel viewPublicKeyRingPanel;
+
+    public static ExportPrivateKeyPanel exportPrivateKeyPanel;
+
+    private static ExportPublicKeyPanel exportPublicKeyPanel;
 
     public static SendMessagePanel sendMessagePanel;
 
@@ -58,7 +63,21 @@ public class Main {
         AbstractAction deleteKeyPairAction = new AbstractAction("Delete Key Pair") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.print("Delete");
+                try {
+                    deleteKeyPanel = new DeleteKeyPanel();
+                } catch (IOException | PGPException ex) {
+                    throw new RuntimeException(ex);
+                }
+                if (swapPanel(Panels.DELETE_KEY_PAIR)) {
+                    mainFrame.add(deleteKeyPanel);
+                    mainFrame.invalidate();
+                    mainFrame.revalidate();
+                } else {
+                    mainFrame.add(deleteKeyPanel);
+                }
+                mainFrame.pack();
+                mainFrame.setLocationRelativeTo(null);
+                mainFrame.setBounds(600, 300, 700, 500);
             }
         };
         JMenuItem deleteKeyPairMenuItem = new JMenuItem(deleteKeyPairAction);
@@ -118,7 +137,13 @@ public class Main {
         AbstractAction importPublicKey = new AbstractAction("Import Public Key") {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                try {
+                    PublicKeySet.importKeysFromFile();
+                } catch (IllegalArgumentException exception) {
+                    JOptionPane.showMessageDialog(null, exception.getMessage(), "Import Private Key Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IOException | PGPException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         };
         JMenuItem importPublicKeyMenu = new JMenuItem(importPublicKey);
@@ -127,7 +152,13 @@ public class Main {
         AbstractAction importPrivateKey = new AbstractAction("Import Private Key") {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                try {
+                    PrivateKeySet.importKeyPairsFromFile();
+                } catch (IllegalArgumentException exception) {
+                    JOptionPane.showMessageDialog(null, exception.getMessage(), "Import Private Key Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IOException | PGPException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         };
         JMenuItem importPrivateKeyMenu = new JMenuItem(importPrivateKey);
@@ -139,20 +170,48 @@ public class Main {
         AbstractAction exportPublicKey = new AbstractAction("Export Public Key") {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                try {
+                    exportPublicKeyPanel = new ExportPublicKeyPanel();
+                } catch (PGPException | IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                if (swapPanel(Panels.EXPORT_PUBLIC_KEY)) {
+                    mainFrame.add(exportPublicKeyPanel);
+                    mainFrame.invalidate();
+                    mainFrame.revalidate();
+                } else {
+                    mainFrame.add(exportPublicKeyPanel);
+                }
+                mainFrame.pack();
+                mainFrame.setLocationRelativeTo(null);
+                mainFrame.setBounds(600, 300, 700, 500);
             }
         };
         JMenuItem exportPublicKeyMenu = new JMenuItem(exportPublicKey);
-        importMenu.add(exportPublicKeyMenu);
+        exportMenu.add(exportPublicKeyMenu);
 
         AbstractAction exportPrivateKey = new AbstractAction("Export Private Key") {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                try {
+                    exportPrivateKeyPanel = new ExportPrivateKeyPanel();
+                } catch (PGPException | IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                if (swapPanel(Panels.EXPORT_PRIVATE_KEY)) {
+                    mainFrame.add(exportPrivateKeyPanel);
+                    mainFrame.invalidate();
+                    mainFrame.revalidate();
+                } else {
+                    mainFrame.add(exportPrivateKeyPanel);
+                }
+                mainFrame.pack();
+                mainFrame.setLocationRelativeTo(null);
+                mainFrame.setBounds(600, 300, 700, 500);
             }
         };
         JMenuItem exportPrivateKeyMenu = new JMenuItem(exportPrivateKey);
-        importMenu.add(exportPrivateKeyMenu);
+        exportMenu.add(exportPrivateKeyMenu);
 
 
         JMenu messageMenu = new JMenu("Message");
@@ -208,11 +267,16 @@ public class Main {
         if (currentPanel == nextPanel) return false;
         boolean result = false;
         switch (currentPanel) {
-            case MAIN, DELETE_KEY_PAIR -> {
+            case MAIN -> {
                 currentPanel = nextPanel;
             }
             case GENERATE_KEY_PAIR -> {
                 mainFrame.remove(generateKeyPanel);
+                currentPanel = nextPanel;
+                result = true;
+            }
+            case DELETE_KEY_PAIR -> {
+                mainFrame.remove(deleteKeyPanel);
                 currentPanel = nextPanel;
                 result = true;
             }
@@ -223,6 +287,16 @@ public class Main {
             }
             case VIEW_PRIVATE_KEY_RING -> {
                 mainFrame.remove(viewPrivateKeyRingPanel);
+                currentPanel = nextPanel;
+                result = true;
+            }
+            case EXPORT_PUBLIC_KEY -> {
+                mainFrame.remove(exportPublicKeyPanel);
+                currentPanel = nextPanel;
+                result = true;
+            }
+            case EXPORT_PRIVATE_KEY -> {
+                mainFrame.remove(exportPrivateKeyPanel);
                 currentPanel = nextPanel;
                 result = true;
             }

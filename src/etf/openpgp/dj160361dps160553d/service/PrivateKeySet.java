@@ -89,10 +89,10 @@ public class PrivateKeySet {
         }
     }
 
-    public void removePrivateKey(long keyID, String passphrase) throws InvalidPasswordException {
+    public static void removePrivateKey(long keyID, char[] passphrase) throws InvalidPasswordException {
         try {
             PGPSecretKeyRing keyRing = secretKeys.getSecretKeyRing(keyID);
-            PGPKeyPair keyPair = keyRing.getSecretKey().extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase.toCharArray()));
+            PGPKeyPair keyPair = keyRing.getSecretKey().extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase));
             if (keyPair.getKeyID() == keyID)
                 secretKeys = PGPSecretKeyRingCollection.removeSecretKeyRing(secretKeys, secretKeys.getSecretKeyRing(keyID));
             else throw new InvalidPasswordException();
@@ -101,13 +101,13 @@ public class PrivateKeySet {
         }
     }
 
-    public void removePrivateKey(String user, String passphrase) throws PGPException {
+    public static void removePrivateKey(String user, char[] passphrase) throws PGPException {
         Iterator<PGPSecretKeyRing> detectedUsers;
         detectedUsers = secretKeys.getKeyRings(user, true);//boolean means whether partial matches are allowed or not
         while (detectedUsers.hasNext()) {
             PGPSecretKeyRing current = detectedUsers.next();
-            current.getSecretKey().extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase.toCharArray()));
-            secretKeys = PGPSecretKeyRingCollection.removeSecretKeyRing(secretKeys, detectedUsers.next());
+            current.getSecretKey().extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase));
+            secretKeys = PGPSecretKeyRingCollection.removeSecretKeyRing(secretKeys, current);
         }
     }
 
@@ -124,7 +124,7 @@ public class PrivateKeySet {
     }
 
 
-    public void exportPairToFile(String user) throws PGPException, IOException {
+    public static void exportPairToFile(String user) throws PGPException, IOException {
         JFrame parent = new JFrame();
         Iterator<PGPSecretKeyRing> matchingSecretKeys = secretKeys.getKeyRings(user, true);//partial matches allowed
         if (!matchingSecretKeys.hasNext()) {
@@ -138,12 +138,12 @@ public class PrivateKeySet {
             File file = fileChoose.getSelectedFile();
             OutputStream secretOut = new FileOutputStream(file.getAbsolutePath() + ".asc");
             secretOut = new ArmoredOutputStream(secretOut);
-            secretKeyRing.encode(secretOut);
+            secretKeyRing.getSecretKey().encode(secretOut);
             secretOut.close();
         }
     }
 
-    public void importKeyPairsFromFile() throws IOException, PGPException {
+    public static void importKeyPairsFromFile() throws IOException, PGPException {
         KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
         JFrame parent = new JFrame();
         JFileChooser fileChoose = new JFileChooser();
@@ -177,7 +177,7 @@ public class PrivateKeySet {
         }
     }
 
-    public void exportPublicKey(String user) throws PGPException, IOException {
+    public static void exportPublicKey(String user) throws PGPException, IOException {
         Iterator<PGPSecretKeyRing> matchingSecretKeys = secretKeys.getKeyRings(user, true);//partial matches allowed
         JFrame parent = new JFrame();
         JFileChooser fileChoose = new JFileChooser();

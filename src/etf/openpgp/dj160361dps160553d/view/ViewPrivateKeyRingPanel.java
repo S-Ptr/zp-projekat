@@ -27,6 +27,5 @@ public class ViewPrivateKeyRingPanel extends JPanel {
         JTable privateKeyRingTable = new JTable(PrivateKeySet.getSecretKeysMatrix(), columnNames);
         JScrollPane jScrollPane = new JScrollPane(privateKeyRingTable);
         this.add(jScrollPane, BorderLayout.CENTER);
-
     }
 }

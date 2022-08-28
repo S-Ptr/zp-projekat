@@ -63,7 +63,16 @@ public class PublicKeySet {
         publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, new PGPPublicKeyRing(list));
     }
 
-    public void importKeysFromFile() throws IOException, PGPException {
+    public void removePublicKey(String user) throws PGPException {
+        Iterator<PGPPublicKeyRing> detectedUsers = null;
+        detectedUsers = this.publicKeys.getKeyRings(user, true);//boolean means whether partial matches are allowed or not
+        while (detectedUsers.hasNext()) {
+            PGPPublicKeyRing current = detectedUsers.next();
+            this.publicKeys = PGPPublicKeyRingCollection.removePublicKeyRing(publicKeys, current);
+        }
+    }
+
+    public static void importKeysFromFile() throws IOException, PGPException {
         KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
         JFrame parent = new JFrame();
         JFileChooser fileChoose = new JFileChooser();
@@ -87,7 +96,7 @@ public class PublicKeySet {
         }
     }
 
-    public void exportKeyToFile(String user) throws PGPException, IOException {
+    public static void exportKeyToFile(String user) throws PGPException, IOException {
         JFrame parent = new JFrame();
         Iterator<PGPPublicKeyRing> matchingPublicKeys = publicKeys.getKeyRings(user, true);//partial matches allowed
         if (!matchingPublicKeys.hasNext()) {
@@ -108,7 +117,7 @@ public class PublicKeySet {
         }
     }
 
-    public void exportKeyToFile(String user, File file) throws PGPException, IOException {
+    public static void exportKeyToFile(String user, File file) throws PGPException, IOException {
         Iterator<PGPPublicKeyRing> matchingPublicKeys = publicKeys.getKeyRings(user, true);//partial matches allowed
         if (!matchingPublicKeys.hasNext()) {
             throw new PGPException("No matching key found");
