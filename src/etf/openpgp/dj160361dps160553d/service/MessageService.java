@@ -1,4 +1,4 @@
-package etf.openpgp.dj160361dps160553d;
+package etf.openpgp.dj160361dps160553d.service;
 
 
 import org.bouncycastle.bcpg.*;

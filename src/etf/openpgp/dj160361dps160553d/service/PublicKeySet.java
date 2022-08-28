@@ -1,9 +1,11 @@
-package etf.openpgp.dj160361dps160553d;
+package etf.openpgp.dj160361dps160553d.service;
 
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
-import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
+import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.KeyFingerPrintCalculator;
 import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 
@@ -14,11 +16,15 @@ import java.util.Iterator;
 
 public class PublicKeySet {
 
-    public PGPPublicKeyRingCollection publicKeys;
+    public static PGPPublicKeyRingCollection publicKeys;
 
 
     public PublicKeySet() throws PGPException, IOException {
-        this.publicKeys = new PGPPublicKeyRingCollection(new ArrayList<PGPPublicKeyRing>());
+        publicKeys = new PGPPublicKeyRingCollection(new ArrayList<>());
+    }
+
+    public static PGPPublicKeyRingCollection getPublicKeys(){
+        return publicKeys;
     }
 
     public void addPublicKeyRing(PGPPublicKey publicKey){
@@ -37,23 +43,23 @@ public class PublicKeySet {
             File file = fileChoose.getSelectedFile();
             PGPPublicKeyRingCollection fileKeys = new PGPPublicKeyRingCollection(new ArmoredInputStream(new FileInputStream(file)), fingerprintCalc);
             for(PGPPublicKeyRing keyRing : fileKeys) {
-                this.publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(this.publicKeys, keyRing);
+                publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, keyRing);
             }
         }
 
     }
 
-    public void importKeysFromFile(File file) throws IOException, PGPException {
+    public static void importKeysFromFile(File file) throws IOException, PGPException {
         KeyFingerPrintCalculator fingerprintCalc = new BcKeyFingerprintCalculator();
         PGPPublicKeyRingCollection fileKeys = new PGPPublicKeyRingCollection(new ArmoredInputStream(new FileInputStream(file)), fingerprintCalc);
         for (PGPPublicKeyRing keyRing : fileKeys) {
-            this.publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(this.publicKeys, keyRing);
+            publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, keyRing);
         }
     }
 
     public void exportKeyToFile(String user) throws PGPException, IOException {
         JFrame parent = new JFrame();
-        Iterator<PGPPublicKeyRing> matchingPublicKeys = this.publicKeys.getKeyRings(user, true);//partial matches allowed
+        Iterator<PGPPublicKeyRing> matchingPublicKeys = publicKeys.getKeyRings(user, true);//partial matches allowed
         if(!matchingPublicKeys.hasNext()){
             throw new PGPException("No matching key found");
         }
@@ -73,7 +79,7 @@ public class PublicKeySet {
     }
 
     public void exportKeyToFile(String user, File file) throws PGPException, IOException {
-        Iterator<PGPPublicKeyRing> matchingPublicKeys = this.publicKeys.getKeyRings(user, true);//partial matches allowed
+        Iterator<PGPPublicKeyRing> matchingPublicKeys = publicKeys.getKeyRings(user, true);//partial matches allowed
         if (!matchingPublicKeys.hasNext()) {
             throw new PGPException("No matching key found");
         }
@@ -85,7 +91,7 @@ public class PublicKeySet {
     }
 
     public PGPPublicKey getPublicKey(String user) throws PGPException {
-        Iterator<PGPPublicKeyRing> matchingPublicKey = this.publicKeys.getKeyRings(user, true);//partial matches allowed
+        Iterator<PGPPublicKeyRing> matchingPublicKey = publicKeys.getKeyRings(user, true);//partial matches allowed
         if(matchingPublicKey.hasNext()){
             return matchingPublicKey.next().getPublicKey();
         }else {
@@ -93,12 +99,9 @@ public class PublicKeySet {
             return null;
         }
     }
-
+    
     public PGPPublicKey getPublicKey(long keyID) throws PGPException {
         return this.getPublicKey(keyID);
     }
-
-    public PGPPublicKeyRingCollection getPublicKeys(){
-        return this.publicKeys;
-    }
 }
+ 
