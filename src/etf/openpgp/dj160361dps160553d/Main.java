@@ -245,7 +245,7 @@ public class Main {
             @Override
             public void actionPerformed(ActionEvent e) {
                 receiveMessagePanel = new ReceiveMessagePanel();
-                if (swapPanel(Panels.SEND_MESSAGE)) {
+                if (swapPanel(Panels.RECEIVE_MESSAGE)) {
                     mainFrame.add(receiveMessagePanel);
                     mainFrame.invalidate();
                     mainFrame.revalidate();
