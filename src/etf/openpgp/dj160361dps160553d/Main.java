@@ -263,6 +263,18 @@ public class Main {
         mainFrame.setBounds(600, 300, 800, 500);
         mainFrame.setVisible(true);
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                try {
+                    PrivateKeySet.exportPrivateKeys();
+                    PublicKeySet.exportPublicKeys();
+                } catch (IOException | PGPException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
     public static void resetToMain() {

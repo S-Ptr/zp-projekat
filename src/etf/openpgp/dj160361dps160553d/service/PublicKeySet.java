@@ -138,6 +138,21 @@ public class PublicKeySet {
         secretOut.close();
     }
 
+    public static void exportPublicKeys() throws PGPException, IOException {
+        Iterator<PGPPublicKeyRing> publicKeyRings = publicKeys.getKeyRings();
+        if (!publicKeyRings.hasNext()) {
+            throw new PGPException("No matching key found");
+        }
+
+        OutputStream publicOut = new FileOutputStream("public.asc");
+        publicOut = new ArmoredOutputStream(publicOut);
+        while (publicKeyRings.hasNext()) {
+            PGPPublicKeyRing publicKeyRing = publicKeyRings.next();
+            publicKeyRing.encode(publicOut);
+        }
+        publicOut.close();
+    }
+
     public static PGPPublicKey getPublicKey(String user) throws PGPException {
         Iterator<PGPPublicKeyRing> matchingPublicKey = publicKeys.getKeyRings(user, true);//partial matches allowed
         if (matchingPublicKey.hasNext()) {
