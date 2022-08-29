@@ -56,7 +56,7 @@ public class Main {
                 }
                 mainFrame.pack();
                 mainFrame.setLocationRelativeTo(null);
-                mainFrame.setBounds(600, 300, 700, 500);
+                mainFrame.setBounds(600, 300, 800, 500);
             }
         };
         JMenuItem generateKeyPairMenuItem = new JMenuItem(generateKeyPairAction);
@@ -79,7 +79,7 @@ public class Main {
                 }
                 mainFrame.pack();
                 mainFrame.setLocationRelativeTo(null);
-                mainFrame.setBounds(600, 300, 700, 500);
+                mainFrame.setBounds(600, 300, 800, 500);
             }
         };
         JMenuItem deleteKeyPairMenuItem = new JMenuItem(deleteKeyPairAction);
@@ -105,7 +105,7 @@ public class Main {
                 }
                 mainFrame.pack();
                 mainFrame.setLocationRelativeTo(null);
-                mainFrame.setBounds(600, 300, 700, 500);
+                mainFrame.setBounds(600, 300, 800, 500);
             }
         };
         JMenuItem viewPublicKeyRingMenu = new JMenuItem(viewPublicKeyRingAction);
@@ -128,7 +128,7 @@ public class Main {
                 }
                 mainFrame.pack();
                 mainFrame.setLocationRelativeTo(null);
-                mainFrame.setBounds(600, 300, 700, 500);
+                mainFrame.setBounds(600, 300, 800, 500);
             }
         };
         JMenuItem viewSecretKeyRingMenu = new JMenuItem(viewSecretKeyRingAction);
@@ -186,7 +186,7 @@ public class Main {
                 }
                 mainFrame.pack();
                 mainFrame.setLocationRelativeTo(null);
-                mainFrame.setBounds(600, 300, 700, 500);
+                mainFrame.setBounds(600, 300, 800, 500);
             }
         };
         JMenuItem exportPublicKeyMenu = new JMenuItem(exportPublicKey);
@@ -209,7 +209,7 @@ public class Main {
                 }
                 mainFrame.pack();
                 mainFrame.setLocationRelativeTo(null);
-                mainFrame.setBounds(600, 300, 700, 500);
+                mainFrame.setBounds(600, 300, 800, 500);
             }
         };
         JMenuItem exportPrivateKeyMenu = new JMenuItem(exportPrivateKey);
@@ -235,7 +235,7 @@ public class Main {
                 }
                 mainFrame.pack();
                 mainFrame.setLocationRelativeTo(null);
-                mainFrame.setBounds(600, 300, 700, 500);
+                mainFrame.setBounds(600, 300, 800, 500);
             }
         };
         JMenuItem sendMessageMenu = new JMenuItem(sendMessage);
@@ -254,13 +254,13 @@ public class Main {
                 }
                 mainFrame.pack();
                 mainFrame.setLocationRelativeTo(null);
-                mainFrame.setBounds(600, 300, 700, 500);
+                mainFrame.setBounds(600, 300, 800, 500);
             }
         };
         JMenuItem receiveMessageMenu = new JMenuItem(receiveMessage);
         messageMenu.add(receiveMessageMenu);
 
-        mainFrame.setBounds(600, 300, 700, 500);
+        mainFrame.setBounds(600, 300, 800, 500);
         mainFrame.setVisible(true);
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
@@ -271,7 +271,7 @@ public class Main {
             mainFrame.revalidate();
             mainFrame.pack();
             mainFrame.setLocationRelativeTo(null);
-            mainFrame.setBounds(600, 300, 700, 500);
+            mainFrame.setBounds(600, 300, 800, 500);
         }
     }
 
