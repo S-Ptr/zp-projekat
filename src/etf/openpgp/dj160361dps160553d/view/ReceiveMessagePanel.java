@@ -1,7 +1,6 @@
 package etf.openpgp.dj160361dps160553d.view;
 
 import etf.openpgp.dj160361dps160553d.Main;
-import etf.openpgp.dj160361dps160553d.model.Message;
 import etf.openpgp.dj160361dps160553d.service.MessageService;
 import etf.openpgp.dj160361dps160553d.service.PrivateKeySet;
 import etf.openpgp.dj160361dps160553d.service.PublicKeySet;

@@ -6,8 +6,6 @@ import etf.openpgp.dj160361dps160553d.service.PublicKeySet;
 import org.bouncycastle.openpgp.PGPException;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +25,7 @@ public class ExportPublicKeyPanel extends JTabbedPane {
 
         if (PrivateKeySet.getSecretKeys() == null || PrivateKeySet.getSecretKeys().size() == 0) {
             File secretFile = new File("secret.asc");
-            secretFile.createNewFile(); // if file already exists will do nothing
+            secretFile.createNewFile();
             PrivateKeySet.importKeyPairsFromFile(secretFile);
         }
 
@@ -55,7 +53,7 @@ public class ExportPublicKeyPanel extends JTabbedPane {
 
         if (PublicKeySet.getPublicKeys() == null || PublicKeySet.getPublicKeys().size() == 0) {
             File publicKeysFile = new File("public.asc");
-            publicKeysFile.createNewFile(); // if file already exists will do nothing
+            publicKeysFile.createNewFile();
             PublicKeySet.importKeysFromFile(publicKeysFile);
         }
 

@@ -23,7 +23,7 @@ public class DeleteKeyPanel extends JPanel {
 
         if (PrivateKeySet.getSecretKeys() == null || PrivateKeySet.getSecretKeys().size() == 0) {
             File secretFile = new File("secret.asc");
-            secretFile.createNewFile(); // if file already exists will do nothing
+            secretFile.createNewFile();
             PrivateKeySet.importKeyPairsFromFile(secretFile);
         }
 
