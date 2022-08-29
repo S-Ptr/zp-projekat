@@ -1,5 +1,6 @@
 package etf.openpgp.dj160361dps160553d.view;
 
+import etf.openpgp.dj160361dps160553d.Main;
 import etf.openpgp.dj160361dps160553d.model.Message;
 import etf.openpgp.dj160361dps160553d.service.MessageService;
 import etf.openpgp.dj160361dps160553d.service.PrivateKeySet;
@@ -39,6 +40,7 @@ public class ReceiveMessagePanel extends JPanel {
             } catch (IOException | PGPException ex) {
                 throw new RuntimeException(ex);
             }
+            Main.resetToMain();
         });
     }
 }

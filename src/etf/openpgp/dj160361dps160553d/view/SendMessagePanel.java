@@ -1,5 +1,6 @@
 package etf.openpgp.dj160361dps160553d.view;
 
+import etf.openpgp.dj160361dps160553d.Main;
 import etf.openpgp.dj160361dps160553d.model.Message;
 import etf.openpgp.dj160361dps160553d.model.SymmetricAlgorithmOptions;
 import etf.openpgp.dj160361dps160553d.service.MessageService;
@@ -167,6 +168,7 @@ public class SendMessagePanel extends JPanel {
                 throw new RuntimeException(ex);
             }
             System.out.println(sendMessage.toString());
+            Main.resetToMain();
         });
 
     }
