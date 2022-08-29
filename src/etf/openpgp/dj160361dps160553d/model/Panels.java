@@ -8,7 +8,9 @@ public enum Panels {
     VIEW_PRIVATE_KEY_RING(4),
     EXPORT_PUBLIC_KEY(5),
     EXPORT_PRIVATE_KEY(6),
-    SEND_MESSAGE(7);
+    SEND_MESSAGE(7),
+
+    RECEIVE_MESSAGE(8);
     private final int screen;
 
     Panels(int screen) {

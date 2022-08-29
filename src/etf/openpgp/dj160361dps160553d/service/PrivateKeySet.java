@@ -68,7 +68,7 @@ public class PrivateKeySet {
         ArrayList<String> secretKeysArray = new ArrayList<>();
         secretKeys.getKeyRings().forEachRemaining(pgpSecretKeys -> {
             String[] array = (new String(pgpSecretKeys.getPublicKeys().next().getRawUserIDs().next())).split(" ");
-            secretKeysArray.add(array[0] + " " + array[1].substring(1, array[1].length() - 1) + " " + Long.toHexString(pgpSecretKeys.getPublicKeys().next().getKeyID()));
+            secretKeysArray.add(array[0] + "< " + array[1].substring(1, array[1].length() - 1) + ">");
         });
         return secretKeysArray.toArray(String[]::new);
     }
@@ -111,12 +111,12 @@ public class PrivateKeySet {
         }
     }
 
-    public PGPKeyPair getKeyPair(String user, String passphrase) throws PGPException {
+    public static PGPKeyPair getKeyPair(String user, char[] passphrase) throws PGPException {
         Iterator<PGPSecretKeyRing> matchingSecretKeys = secretKeys.getKeyRings(user, true);//partial matches allowed
         if (matchingSecretKeys.hasNext()) {
             PGPSecretKeyRing secretKeyRing = matchingSecretKeys.next();
             PGPSecretKey secretKey = secretKeyRing.getSecretKey();
-            return secretKey.extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase.toCharArray()));
+            return secretKey.extractKeyPair(new BcPBESecretKeyDecryptorBuilder(hashCalculator).build(passphrase));
         } else {
             System.out.println("No such secret key found: " + user);
         }
@@ -167,7 +167,7 @@ public class PrivateKeySet {
         }
     }
 
-    public PGPPublicKey getPublicKey(String user) throws PGPException {
+    public static PGPPublicKey getPublicKey(String user) throws PGPException {
         Iterator<PGPSecretKeyRing> matchingSecretKey = secretKeys.getKeyRings(user, true);//partial matches allowed
         if (matchingSecretKey.hasNext()) {
             return matchingSecretKey.next().getPublicKey();

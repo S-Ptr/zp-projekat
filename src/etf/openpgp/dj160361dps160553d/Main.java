@@ -28,6 +28,8 @@ public class Main {
 
     public static SendMessagePanel sendMessagePanel;
 
+    public static ReceiveMessagePanel receiveMessagePanel;
+
     public static void main(String[] args) {
 
         mainFrame = new JFrame("PGP protocol");
@@ -242,7 +244,17 @@ public class Main {
         AbstractAction receiveMessage = new AbstractAction("Receive Message") {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                receiveMessagePanel = new ReceiveMessagePanel();
+                if (swapPanel(Panels.SEND_MESSAGE)) {
+                    mainFrame.add(receiveMessagePanel);
+                    mainFrame.invalidate();
+                    mainFrame.revalidate();
+                } else {
+                    mainFrame.add(receiveMessagePanel);
+                }
+                mainFrame.pack();
+                mainFrame.setLocationRelativeTo(null);
+                mainFrame.setBounds(600, 300, 700, 500);
             }
         };
         JMenuItem receiveMessageMenu = new JMenuItem(receiveMessage);
@@ -302,6 +314,11 @@ public class Main {
             }
             case SEND_MESSAGE -> {
                 mainFrame.remove(sendMessagePanel);
+                currentPanel = nextPanel;
+                result = true;
+            }
+            case RECEIVE_MESSAGE -> {
+                mainFrame.remove(receiveMessagePanel);
                 currentPanel = nextPanel;
                 result = true;
             }

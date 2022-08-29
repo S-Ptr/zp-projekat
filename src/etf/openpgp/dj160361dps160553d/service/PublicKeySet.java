@@ -57,6 +57,15 @@ public class PublicKeySet {
         return publicKeysArray;
     }
 
+    public static String[] getPublicKeysArray() {
+        ArrayList<String> publicKeysArray = new ArrayList<>();
+        publicKeys.getKeyRings().forEachRemaining(pgpPublicKeys -> {
+            String[] array = (new String(pgpPublicKeys.getPublicKeys().next().getRawUserIDs().next())).split(" ");
+            publicKeysArray.add(array[0] + " <" + array[1].substring(1, array[1].length() - 1) + ">");
+        });
+        return publicKeysArray.toArray(String[]::new);
+    }
+
     public static void addPublicKeyRing(PGPPublicKey publicKey) {
         ArrayList<PGPPublicKey> list = new ArrayList<>();
         list.add(publicKey);
@@ -65,10 +74,10 @@ public class PublicKeySet {
 
     public void removePublicKey(String user) throws PGPException {
         Iterator<PGPPublicKeyRing> detectedUsers = null;
-        detectedUsers = this.publicKeys.getKeyRings(user, true);//boolean means whether partial matches are allowed or not
+        detectedUsers = publicKeys.getKeyRings(user, true);//boolean means whether partial matches are allowed or not
         while (detectedUsers.hasNext()) {
             PGPPublicKeyRing current = detectedUsers.next();
-            this.publicKeys = PGPPublicKeyRingCollection.removePublicKeyRing(publicKeys, current);
+            publicKeys = PGPPublicKeyRingCollection.removePublicKeyRing(publicKeys, current);
         }
     }
 
@@ -129,7 +138,7 @@ public class PublicKeySet {
         secretOut.close();
     }
 
-    public PGPPublicKey getPublicKey(String user) throws PGPException {
+    public static PGPPublicKey getPublicKey(String user) throws PGPException {
         Iterator<PGPPublicKeyRing> matchingPublicKey = publicKeys.getKeyRings(user, true);//partial matches allowed
         if (matchingPublicKey.hasNext()) {
             return matchingPublicKey.next().getPublicKey();

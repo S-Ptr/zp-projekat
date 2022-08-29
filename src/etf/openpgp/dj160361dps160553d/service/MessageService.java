@@ -18,7 +18,7 @@ import java.util.Iterator;
 
 public class MessageService {
 
-    public void generatePGPMessage(PGPKeyPair senderKey, PGPPublicKey receiverKey, File inputFile, File outputFile, int symmetricAlgorithm, boolean toAuth, boolean toCompress, boolean toRadix64) throws IOException {
+    public static void generatePGPMessage(PGPKeyPair senderKey, PGPPublicKey receiverKey, File inputFile, File outputFile, int symmetricAlgorithm, boolean toAuth, boolean toCompress, boolean toRadix64) throws IOException {
         PGPDataEncryptorBuilder encryptorBuilder;
         PGPContentSignerBuilder signerBuilder = new BcPGPContentSignerBuilder(senderKey.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1);
         PGPCompressedDataGenerator zipGenerator = null;
@@ -142,7 +142,7 @@ public class MessageService {
         msgOut.close();
     }
 
-    public void readPGPMessage (File msgIn, PGPSecretKeyRingCollection privateKeys, PGPPublicKeyRingCollection publicKeys) throws IOException, PGPException {
+    public static void readPGPMessage (File msgIn, PGPSecretKeyRingCollection privateKeys, PGPPublicKeyRingCollection publicKeys) throws IOException, PGPException {
         InputStream in = new FileInputStream(msgIn);
         in = PGPUtil.getDecoderStream(new ByteArrayInputStream(in.readAllBytes()));
 
