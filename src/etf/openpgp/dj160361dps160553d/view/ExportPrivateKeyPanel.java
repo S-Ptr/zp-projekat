@@ -41,6 +41,7 @@ public class ExportPrivateKeyPanel extends JPanel {
                         throw new RuntimeException(e);
                     }
                     Main.resetToMain();
+                    JOptionPane.showMessageDialog(null, "Key successfully exported!");
                 }
                 System.out.println(privateKeyRingTable.getValueAt(privateKeyRingTable.getSelectedRow(), 0).toString());
             }

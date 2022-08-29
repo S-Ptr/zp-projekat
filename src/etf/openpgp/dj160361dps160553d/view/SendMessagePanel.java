@@ -1,5 +1,6 @@
 package etf.openpgp.dj160361dps160553d.view;
 
+import etf.openpgp.dj160361dps160553d.Main;
 import etf.openpgp.dj160361dps160553d.model.Message;
 import etf.openpgp.dj160361dps160553d.model.SymmetricAlgorithmOptions;
 import etf.openpgp.dj160361dps160553d.service.MessageService;
@@ -34,11 +35,16 @@ public class SendMessagePanel extends JPanel {
         Button buttonFileToSend = new Button("Open");
         this.add(buttonFileToSend, constraints);
 
+        JLabel labelSelectedFileToSend = new JLabel("");
+        constraints.gridx = 2;
+        add(labelSelectedFileToSend, constraints);
+
         buttonFileToSend.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Choose a file to send");
-            fileChooser.showOpenDialog(this);
-            sendMessage.setInputFile(fileChooser.getSelectedFile());
+            JFileChooser fileChooserToSend = new JFileChooser();
+            fileChooserToSend.setDialogTitle("Choose a file to send");
+            fileChooserToSend.showOpenDialog(this);
+            sendMessage.setInputFile(fileChooserToSend.getSelectedFile());
+            labelSelectedFileToSend.setText(fileChooserToSend.getSelectedFile().getName());
         });
 
         constraints.gridx = 0;
@@ -50,11 +56,16 @@ public class SendMessagePanel extends JPanel {
         Button buttonFileToCreate = new Button("Open");
         this.add(buttonFileToCreate, constraints);
 
+        JLabel labelSelectedFileToCreate = new JLabel("");
+        constraints.gridx = 2;
+        add(labelSelectedFileToCreate, constraints);
+
         buttonFileToCreate.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Choose a file to save to");
-            fileChooser.showOpenDialog(this);
-            sendMessage.setOutputFile(fileChooser.getSelectedFile());
+            JFileChooser fileChooserToCreate = new JFileChooser();
+            fileChooserToCreate.setDialogTitle("Choose a file to save to");
+            fileChooserToCreate.showOpenDialog(this);
+            sendMessage.setOutputFile(fileChooserToCreate.getSelectedFile());
+            labelSelectedFileToCreate.setText(fileChooserToCreate.getSelectedFile().getName());
         });
 
         constraints.gridx = 0;
@@ -167,6 +178,8 @@ public class SendMessagePanel extends JPanel {
                 throw new RuntimeException(ex);
             }
             System.out.println(sendMessage.toString());
+            Main.resetToMain();
+            JOptionPane.showMessageDialog(null, "Message successfully sent!");
         });
 
     }

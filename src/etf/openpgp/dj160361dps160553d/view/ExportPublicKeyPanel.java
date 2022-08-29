@@ -12,13 +12,14 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public class ExportPublicKeyPanel extends JPanel {
+public class ExportPublicKeyPanel extends JTabbedPane {
 
     public ExportPublicKeyPanel() throws IOException, PGPException {
-        this.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Export Public Keys"));
+        setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "Export Keys"));
 
-        this.setLayout(new BorderLayout());
+        JPanel privateKeysPanel = new JPanel();
+        privateKeysPanel.setLayout(new BorderLayout());
 
         String[] columnNames = {"Name", "E-mail", "KeyID"};
 
@@ -42,12 +43,16 @@ public class ExportPublicKeyPanel extends JPanel {
                     throw new RuntimeException(e);
                 }
                 Main.resetToMain();
+                JOptionPane.showMessageDialog(null, "Key successfully exported!");
             }
             System.out.println(privateKeyRingTable.getValueAt(privateKeyRingTable.getSelectedRow(), 0).toString());
         });
-        this.add(new JScrollPane(privateKeyRingTable), BorderLayout.NORTH);
+        privateKeysPanel.add(new JScrollPane(privateKeyRingTable), BorderLayout.SOUTH);
 
         //PUBLIC KEYS
+        JPanel publicKeysPanel = new JPanel();
+        publicKeysPanel.setLayout(new BorderLayout());
+
         if (PublicKeySet.getPublicKeys() == null || PublicKeySet.getPublicKeys().size() == 0) {
             File publicKeysFile = new File("public.asc");
             publicKeysFile.createNewFile(); // if file already exists will do nothing
@@ -66,11 +71,14 @@ public class ExportPublicKeyPanel extends JPanel {
                     throw new RuntimeException(e);
                 }
                 Main.resetToMain();
+                JOptionPane.showMessageDialog(null, "Key successfully exported!");
             }
             System.out.println(privateKeyRingTable.getValueAt(privateKeyRingTable.getSelectedRow(), 0).toString());
         });
 
-        this.add(new JScrollPane(publicKeyRingTable), BorderLayout.SOUTH);
+        publicKeysPanel.add(new JScrollPane(publicKeyRingTable), BorderLayout.SOUTH);
 
+        add(privateKeysPanel, "Secret Keys");
+        add(publicKeysPanel, "Public Keys");
     }
 }

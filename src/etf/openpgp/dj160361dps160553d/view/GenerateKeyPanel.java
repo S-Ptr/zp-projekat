@@ -83,6 +83,7 @@ public class GenerateKeyPanel extends JPanel {
             }
             PrivateKeySet.addPrivateKey(generatedKeyPair, user);
             Main.resetToMain();
+            JOptionPane.showMessageDialog(null, "Key successfully created!");
         });
 
         this.setBorder(BorderFactory.createTitledBorder(
