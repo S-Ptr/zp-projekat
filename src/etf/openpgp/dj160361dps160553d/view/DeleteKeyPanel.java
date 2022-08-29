@@ -61,6 +61,7 @@ public class DeleteKeyPanel extends JPanel {
                                 String username = privateKeyRingTable.getValueAt(privateKeyRingTable.getSelectedRow(), 0).toString()
                                         + " <" + privateKeyRingTable.getValueAt(privateKeyRingTable.getSelectedRow(), 1).toString() + ">";
                                 Main.resetToMain();
+                                JOptionPane.showMessageDialog(null, "Key successfully deleted!");
                                 PrivateKeySet.removePrivateKey(username, password);
                             } catch (PGPException e) {
                                 throw new RuntimeException(e);

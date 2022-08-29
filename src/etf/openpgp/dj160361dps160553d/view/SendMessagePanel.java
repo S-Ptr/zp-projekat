@@ -169,6 +169,7 @@ public class SendMessagePanel extends JPanel {
             }
             System.out.println(sendMessage.toString());
             Main.resetToMain();
+            JOptionPane.showMessageDialog(null, "Message successfully sent!");
         });
 
     }

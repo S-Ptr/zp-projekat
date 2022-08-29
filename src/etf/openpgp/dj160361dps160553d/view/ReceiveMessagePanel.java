@@ -41,6 +41,7 @@ public class ReceiveMessagePanel extends JPanel {
                 throw new RuntimeException(ex);
             }
             Main.resetToMain();
+            JOptionPane.showMessageDialog(null, "Message successfully received!");
         });
     }
 }
